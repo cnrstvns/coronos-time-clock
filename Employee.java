@@ -3,11 +3,13 @@ import java.util.Date;
 import org.joda.time.*;
 /**
  * @author Dalton Kruppenbacher
- * @version 0.2
+ * @version 0.2.1
  * Revision Notes: Added support for an Employee's position
  *                 Added YTD totals for Employee wages earned
  *                 Added username and password fields
  *                 Added accessors for all employee data
+ *                 Added mutators for some employee data
+ *
  *
  * ISTE 121.01 CPS:ID2
  * Final Project
@@ -175,6 +177,16 @@ public class Employee {
     }//end getFirstName()
 
     /**
+     * Mutator to set an Employee's First Name
+     * @param firstName an Employee's First Name
+     *
+     * @since 0.2.1
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }//end setFirstName()
+
+    /**
      * Accessor to get an Employee's Last Name
      * @return lastName
      *
@@ -183,6 +195,16 @@ public class Employee {
     public String getLastName() {
         return lastName;
     }//end getLastName()
+
+    /**
+     * Mutator to set an Employee's Last Name
+     * @param lastName an Employee's Last Name
+     *
+     * @since 0.2.1
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }//end setLastName
 
     /**
      * Accessor to get an Employee's Address
@@ -195,6 +217,16 @@ public class Employee {
     }//end getStreetAddress()
 
     /**
+     * Mutator to set an Employee's Street Address
+     * @param streetAddress an Employee's Street Address
+     *
+     * @since 0.2.1
+     */
+    public void setStreetAddress(String streetAddress) {
+        this.streetAddress = streetAddress;
+    }//end setStreetAddress()
+
+    /**
      * Accessor to get an Employee's City
      * @return city
      *
@@ -203,6 +235,16 @@ public class Employee {
     public String getCity() {
         return city;
     }//end getCity()
+
+    /**
+     * Mutator to set an Employee's city
+     * @param city an Employee's city
+     *
+     * @since 0.2.1
+     */
+    public void setCity(String city) {
+        this.city = city;
+    }//end setCity()
 
     /**
      * Accessor to get an Employee's State
@@ -215,6 +257,16 @@ public class Employee {
     }//end getState()
 
     /**
+     * Mutator to set an Employee's state
+     * @param state an Employee's state
+     *
+     * @since 0.2.1
+     */
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    /**
      * Accessor to get an Employee's ZIP Code
      * @return zipCode
      *
@@ -223,6 +275,16 @@ public class Employee {
     public String getZipCode() {
         return zipCode;
     }//end getZipCode()
+
+    /**
+     * Mutator to set an Employee's ZIP Code
+     * @param zipCode an Employee's ZIP Code
+     *
+     * @since 0.2.1
+     */
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }//end setZipCode()
 
     /**
      * Accessor to get an Employee's Social Security Number
@@ -235,6 +297,16 @@ public class Employee {
     }//end getSocialSecurityNumber()
 
     /**
+     * Mutator to set an Employee's Social Security Number
+     * @param socialSecurityNumber an Employee's Social Security Number
+     *
+     * @since 0.2.1
+     */
+    public void setSocialSecurityNumber(String socialSecurityNumber) {
+        this.socialSecurityNumber = socialSecurityNumber;
+    }//end setSocialSecurityNumber()
+
+    /**
      * Accessor to get an Employee's Position
      * @return position
      *
@@ -243,6 +315,16 @@ public class Employee {
     public String getPosition() {
         return position;
     }//end getPosition()
+
+    /**
+     * Mutator to set an Employee's Position
+     * @param position an Employee's Position
+     *
+     * @since 0.2.1
+     */
+    public void setPosition(String position) {
+        this.position = position;
+    }//end setPosition()
 
     /**
      * Accessor to get an Employee's Vacation Day Balance
@@ -255,6 +337,16 @@ public class Employee {
     }//end getVacationDaysBalance()
 
     /**
+     * Mutator to adjust an Employee's Vacation Day Balance
+     * @param vacationDaysBalance an Employee's Vacation Day Balance
+     *
+     * @since 0.2.1
+     */
+    public void setVacationDaysBalance(double vacationDaysBalance) {
+        this.vacationDaysBalance = vacationDaysBalance;
+    }//end setVacationDaysBalance()
+
+    /**
      * Accessor to get an Employee's Sick Day Balance
      * @return sickDaysBalance
      *
@@ -263,6 +355,16 @@ public class Employee {
     public double getSickDaysBalance() {
         return sickDaysBalance;
     }//end getSickDaysBalance()
+
+    /**
+     * Mutator to adjust an Employee's Sick Day Balance
+     * @param sickDaysBalance an Employee's Sick Day Balance
+     *
+     * @since 0.2.1
+     */
+    public void setSickDaysBalance(double sickDaysBalance) {
+        this.sickDaysBalance = sickDaysBalance;
+    }//end setSickDaysBalance()
 
     /**
      * Accessor to get an Employee's Hourly Rate
@@ -274,9 +376,15 @@ public class Employee {
         return hourlyRate;
     }//end getHourlyRate()
 
+    /**
+     * Mutator to set an Employee's Hourly Rate
+     * @param hourlyRate An Employee's hourly rate
+     *
+     * @since 0.2.1
+     */
     public void setHourlyRate(double hourlyRate) {
         this.hourlyRate = hourlyRate;
-    }
+    }//end setHourlyRate()
 
     /**
      * Accessor to get an Employee's Overtime Rate
@@ -298,5 +406,5 @@ public class Employee {
         return ytdTotal;
     }//end getYtdTotal()
 
-}
+}//end Employee class
 
