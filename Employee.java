@@ -1,14 +1,13 @@
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import org.joda.time.*;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Dalton Kruppenbacher
- * @version 0.2.1
- * Revision Notes: Added support for an Employee's position
- *                 Added YTD totals for Employee wages earned
- *                 Added username and password fields
- *                 Added accessors for all employee data
- *                 Added mutators for some employee data
+ * @version 0.3
+ * Revision Notes: Removed Joda Time
+ *                 Replaced logic to calculate shift times
  *
  *
  * ISTE 121.01 CPS:ID2
@@ -21,8 +20,6 @@ import org.joda.time.*;
  *                    The duplication of this code without written consent of the author is strictly prohibited.
  *                    (C) Dalton Kruppenbacher 2020
  *
- * Additional Materials Used: This class uses Date/Time functions released by Joda.org. The .jar file used from joda.org
- *                            is used under the Apache 2.0 license.
  */
 public class Employee {
     //global constants
@@ -97,16 +94,27 @@ public class Employee {
      * @param clockIn The Time/Date that the Employee's shift started
      * @param clockOut The Time/Date that the Employee's shift ended
      *
-     * @since 0.1
+     * @since 0.3
      */
     public void calculateDuration(Date clockIn, Date clockOut) {
+        long millis = 0;
         final int MINUTES_IN_HOUR = 60;
-        DateTime dtClockIn = new DateTime(clockIn);
-        DateTime dtClockOut = new DateTime(clockOut);
 
-        int hours = Hours.hoursBetween(dtClockIn, dtClockOut).getHours();
-        int minutes = Minutes.minutesBetween(dtClockIn, dtClockOut).getMinutes();
+        //check to make sure clock out time isn't "smaller" than clock in time
+        if (clockOut.getTime() - clockIn.getTime() < 0) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(clockOut);
+            cal.add(Calendar.DATE, 1);
+            clockOut = cal.getTime();
+        } else {
+            millis = clockOut.getTime() - clockIn.getTime();
+        }
 
+        //convert milliseconds to hours and minutes
+        long hours = TimeUnit.HOURS.convert(millis, TimeUnit.HOURS);
+        long minutes = TimeUnit.MINUTES.convert(millis, TimeUnit.MILLISECONDS);
+
+        //calculate duration, add to list
         double duration = hours + (minutes % MINUTES_IN_HOUR);
         addShiftTimes(duration);
     }//end calculateShiftTimes()
