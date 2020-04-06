@@ -70,6 +70,17 @@ public class CoronosServer {
                     s = ss.accept();
                     oos = new ObjectOutputStream(s.getOutputStream());
                     ois = new ObjectInputStream(s.getInputStream());
+					try {
+                        Object ob;
+                        ob = (Object) ois.readObject();
+
+                        if(ob instanceof CoronosAuth) {
+
+                        }
+                    }
+                    catch(ClassNotFoundException cnfe){
+                        cnfe.printStackTrace();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }//end first try catch block

@@ -1,11 +1,19 @@
-public class Authenticator {
+public class CoronosAuth {
 
     private String username;
     private transient String password;
 
-    public Authenticator(String username, String password){
+    public CoronosAuth(String username, String password){
         this.username = username;
         this.password = password;
+    }
+
+    public String getUsername(){
+        return username;
+    }
+
+    public String getPassword(){
+        return password;
     }
 
     public String toString(){
