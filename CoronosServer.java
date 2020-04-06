@@ -2,9 +2,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.BindException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.*;
+import javax.swing.*;    //for JFrame, JButton
+import java.awt.*; 
+import java.awt.event.*;
+
 
 /**
  * @author Dalton Kruppenbacher - Server Setup/Initial Commit
@@ -29,6 +36,13 @@ public class CoronosServer {
     //global constants
     private final int PORT_NUMBER = 16789;
 
+    private JFrame serverFrame;
+    private JPanel serverInfo;
+    private JLabel serverAddress;
+    private JLabel hostLabel;
+    private Vector<String> users = new Vector<>();
+    private InetAddress localhost;
+
     //global Networking / IO declaration
     private ServerSocket ss;
     private Socket s;
@@ -45,6 +59,31 @@ public class CoronosServer {
      */
     public CoronosServer() {
         //GUI stuff
+        users.add("connor:demo");
+        try{
+            localhost = InetAddress.getLocalHost();
+        }
+        catch(UnknownHostException uhe){}
+
+        serverFrame = new JFrame("Coronos Server");
+        serverFrame.setLayout(new BorderLayout());
+        serverInfo = new JPanel();
+        serverInfo.setLayout(new FlowLayout());
+        serverInfo.setBorder(BorderFactory.createTitledBorder("Information"));
+        serverFrame.add(serverInfo, BorderLayout.CENTER);
+
+        hostLabel = new JLabel("IP Address: ");
+        serverInfo.add(hostLabel);
+
+        serverAddress = new JLabel();
+        serverAddress.setText(localhost.toString().split("/")[1]);
+        serverInfo.add(serverAddress);
+
+        serverFrame.setSize(400, 100);
+        serverFrame.setVisible(true);
+        serverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        serverFrame.setResizable(false);
+        serverFrame.setLocationRelativeTo(null);
 
         try {
             //create a serversocket
@@ -63,6 +102,10 @@ public class CoronosServer {
         }//end try catch block
     }//end constructor
 
+    public static void main(String [] args){
+        CoronosServer serv = new CoronosServer();
+    }
+
     class InnerThread extends Thread {
         public void run() {
             while(true) {
@@ -75,7 +118,33 @@ public class CoronosServer {
                         ob = (Object) ois.readObject();
 
                         if(ob instanceof CoronosAuth) {
-
+                            CoronosAuth temp = (CoronosAuth) ob;
+                            String username = temp.getUsername().toLowerCase();
+                            String password = temp.getPassword();
+                            String ipTotal = ss.getLocalSocketAddress().toString();
+                            String ipS = ipTotal.split("/")[0];
+                            System.out.printf("[AUTH] - Attempted Login - %s\n[AUTH] - Username: %s\n[AUTH] - Password: %s\n", ipS, username, password);
+                            for(String us : users){
+                                String tempUser = us.split(":")[0].toLowerCase();
+                                String tempPass = us.split(":")[1];
+                                if(tempUser.equals(username) && tempPass.equals(password)){
+                                    System.out.println("[AUTH] - Successful Login - Valid user");
+                                    temp.setAllow(true);
+                                    break;
+                                }
+                                if(tempUser.equals(username) && !tempPass.equals(password)){
+                                    System.out.println("[AUTH] - Failed Login - Invalid Password");
+                                    temp.setAllow(false, "Invalid Password");
+                                }
+                                if(!tempUser.equals(username)){
+                                    System.out.println("[AUTH] - Failed Login - User Not Found");
+                                    temp.setAllow(false, "Username Does Not Exist.");
+                                }
+                                else {
+                                    continue;
+                                }
+                            }
+                            oos.writeObject((Object)temp);
                         }
                     }
                     catch(ClassNotFoundException cnfe){

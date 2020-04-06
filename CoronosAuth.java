@@ -1,7 +1,11 @@
-public class CoronosAuth {
+import java.io.Serializable;
+
+public class CoronosAuth implements Serializable{
 
     private String username;
-    private transient String password;
+    private String password;
+    private Boolean allow;
+    private String reason = "";
 
     public CoronosAuth(String username, String password){
         this.username = username;
@@ -16,16 +20,25 @@ public class CoronosAuth {
         return password;
     }
 
+    public Boolean getAllow(){
+        return allow;
+    }
+
+    public String getReason(){
+        return reason;
+    }
+
+    public void setAllow(Boolean allow){
+        this.allow = allow;
+    }
+
+    public void setAllow(Boolean allow, String reason){
+        this.allow = allow;
+        this.reason = reason;
+    }
+
     public String toString(){
         String returnData = String.format("Username: %s\nPassword: %s", username, password);
         return returnData;
     }
-
-    //example run will not have main in final
-	/*
-    public static void main(String[] args){
-        Authenticator auth = new Authenticator("connor", "SecurePa$$word");
-        System.out.print(auth.toString());
-    }
-	*/
 }

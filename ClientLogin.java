@@ -5,6 +5,7 @@ import java.io.*;        //for File IO
 import java.util.*;      //For Timer
 import java.text.*;      //For Formatting
 import javax.swing.border.Border;
+import java.net.*;
 //Importing necessary modules for program.
 
 /**
@@ -15,22 +16,20 @@ import javax.swing.border.Border;
  * @author Connor Stevens
  * 
  */
-public class Login implements ActionListener{
-    JFrame loginFrame;
-    JPanel userName;
-    JTextField userNameField;
-    JLabel userNameLabel;
-
-    JPanel passWord;
+public class ClientLogin implements ActionListener{
+    JLabel userNameLabel, passWordLabel;
+    JPanel userName, passWord, options;
+    JButton loginButton, showPassword;
     JPasswordField passWordField;
-    JLabel passWordLabel;
-
-    JPanel options;
-    JButton loginButton;
-    JButton showPassword;
     Boolean isRevealed = false;
+    JTextField userNameField;
+    ObjectOutputStream oos;
+    ObjectInputStream ois;
+    JFrame loginFrame;
+    Boolean allow;
+    String reason;
     
-    public Login(){
+    public ClientLogin(){
         loginFrame = new JFrame("Coronos Login");
         loginFrame.setLayout(new GridLayout(3, 1));
 
@@ -64,12 +63,35 @@ public class Login implements ActionListener{
         loginFrame.setVisible(true);
         loginFrame.pack();
 
+        try {
+            Socket s = new Socket(InetAddress.getLocalHost(), 16789);
+            oos = new ObjectOutputStream(s.getOutputStream());
+            ois = new ObjectInputStream(s.getInputStream());
+        }
+        
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        
+        catch (BindException be) {
+            be.printStackTrace();
+        }
+        
+        catch(ConnectException ce){
+            JOptionPane.showMessageDialog(loginButton, "Failed to connect to server, please contact your System Administrator", "Connection Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+
     }
 
 
     public void actionPerformed(ActionEvent ae){
         String actionString = ae.getActionCommand();
-        System.out.println(actionString);
+        System.out.println("[CLIENT] - Action - " + actionString);
 
         if(actionString.equals("Reveal Password")){
             char[] pass = passWordField.getPassword();
@@ -82,9 +104,49 @@ public class Login implements ActionListener{
             passWordField.setEchoChar('*');
             showPassword.setText("Reveal Password");
         }
+        else if(actionString.equals("Login")){
+            char[] pass = passWordField.getPassword();
+            String password = new String(pass);
+            CoronosAuth ca = new CoronosAuth(userNameField.getText(), password);
+            try{
+                oos.writeObject((Object) ca);
+                oos.flush();
+            }
+            catch(IOException ioe){}
+            while(true){
+                try{
+                    Object obj = ois.readObject();
+                    CoronosAuth resp = (CoronosAuth) obj;
+                    allow = resp.getAllow();
+                    reason = resp.getReason();
+                    if(allow){
+                        System.out.println("[AUTH] - Successful Login - Authentication Successful!");
+                        break;
+                    }
+                    else{
+                        System.out.println("[AUTH] - Failed Login - Authentication Failed!");
+                        JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
+                        break;
+                    }
+                }
+                catch(IOException ioe){
+                    ioe.printStackTrace();
+                }
+                catch(ClassNotFoundException cnfe){
+                    cnfe.printStackTrace();
+                }
+                catch(NullPointerException npe){
+                    npe.printStackTrace();
+                }
+            }
+            if(allow){
+                loginFrame.setVisible(false);
+                ClientGUI cg = new ClientGUI();
+            }
+        }
     }
 
     public static void main(String[] args){
-        Login loginWindow = new Login();
+        ClientLogin loginWindow = new ClientLogin();
     }
 }

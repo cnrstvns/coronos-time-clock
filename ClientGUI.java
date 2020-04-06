@@ -100,7 +100,7 @@ public class ClientGUI {
      * main: A method that instantiates a new TimerFun object
      */
     public static void main(String[] args){ 
-        TimerFun tf = new TimerFun();
+        ClientGUI tf = new ClientGUI();
     }
 
     public void fontLoader(){
