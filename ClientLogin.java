@@ -116,17 +116,24 @@ public class ClientLogin implements ActionListener{
             while(true){
                 try{
                     Object obj = ois.readObject();
-                    CoronosAuth resp = (CoronosAuth) obj;
-                    allow = resp.getAllow();
-                    reason = resp.getReason();
-                    if(allow){
-                        System.out.println("[AUTH] - Successful Login - Authentication Successful!");
-                        break;
-                    }
-                    else{
-                        System.out.println("[AUTH] - Failed Login - Authentication Failed!");
-                        JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
-                        break;
+                    System.out.println("Reading Object");
+                    if(obj instanceof CoronosAuth){
+                        System.out.println("Yes CoronosAuth Object");
+                        CoronosAuth resp = (CoronosAuth) obj;
+                        System.out.println("Casting Object");
+                        allow = resp.getAllow();
+                        System.out.println("Reading Access");
+                        reason = resp.getReason();
+                        System.out.println("Reading Reason");
+                        if(allow){
+                            System.out.println("[AUTH] - Successful Login - Authentication Successful!");
+                            break;
+                        }
+                        else{
+                            System.out.println("[AUTH] - Failed Login - Authentication Failed!");
+                            JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
+                            System.out.println("After Else");
+                        }
                     }
                 }
                 catch(IOException ioe){

@@ -1,12 +1,5 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.BindException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import javax.swing.*;    //for JFrame, JButton
 import java.awt.*; 
@@ -132,16 +125,13 @@ public class CoronosServer {
                                     temp.setAllow(true);
                                     break;
                                 }
-                                if(tempUser.equals(username) && !tempPass.equals(password)){
+                                else if(tempUser.equals(username) && !tempPass.equals(password)){
                                     System.out.println("[AUTH] - Failed Login - Invalid Password");
                                     temp.setAllow(false, "Invalid Password");
                                 }
-                                if(!tempUser.equals(username)){
+                                else if(!tempUser.equals(username)){
                                     System.out.println("[AUTH] - Failed Login - User Not Found");
                                     temp.setAllow(false, "Username Does Not Exist.");
-                                }
-                                else {
-                                    continue;
                                 }
                             }
                             oos.writeObject((Object)temp);
