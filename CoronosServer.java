@@ -1,5 +1,12 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.BindException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.*;
 import javax.swing.*;    //for JFrame, JButton
 import java.awt.*; 
@@ -120,21 +127,27 @@ public class CoronosServer {
                             for(String us : users){
                                 String tempUser = us.split(":")[0].toLowerCase();
                                 String tempPass = us.split(":")[1];
-                                if(tempUser.equals(username) && tempPass.equals(password)){
-                                    System.out.println("[AUTH] - Successful Login - Valid user");
-                                    temp.setAllow(true);
-                                    break;
-                                }
-                                else if(tempUser.equals(username) && !tempPass.equals(password)){
-                                    System.out.println("[AUTH] - Failed Login - Invalid Password");
-                                    temp.setAllow(false, "Invalid Password");
-                                }
-                                else if(!tempUser.equals(username)){
+
+                                if(tempUser.equals(username)) {
+                                    if(tempPass.equals(password)) {
+                                        System.out.println("[AUTH] - Successful Login - Valid user");
+                                        temp.setAllow(true);
+                                        break;
+                                    } else {
+                                        System.out.println("[AUTH] - Failed Login - Invalid Password");
+                                        temp.setAllow(false, "Invalid Password");
+                                        oos.writeObject("Retry");
+                                        oos.flush();
+                                    }
+                                } else {
                                     System.out.println("[AUTH] - Failed Login - User Not Found");
                                     temp.setAllow(false, "Username Does Not Exist.");
+                                    oos.writeObject("Retry");
+                                    oos.flush();
                                 }
                             }
                             oos.writeObject((Object)temp);
+                            oos.flush();
                         }
                     }
                     catch(ClassNotFoundException cnfe){
