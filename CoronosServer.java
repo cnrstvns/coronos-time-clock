@@ -59,7 +59,8 @@ public class CoronosServer {
      */
     public CoronosServer() {
         //GUI stuff
-        users.add("connor:demo");
+        users.add("connor");
+        users.add("demo");
         try{
             localhost = InetAddress.getLocalHost();
         }
@@ -107,56 +108,61 @@ public class CoronosServer {
     }
 
     class InnerThread extends Thread {
+
+        public InnerThread() {
+
+        }
         public void run() {
             while(true) {
                 try {
                     s = ss.accept();
                     oos = new ObjectOutputStream(s.getOutputStream());
                     ois = new ObjectInputStream(s.getInputStream());
-					try {
-                        Object ob;
-                        ob = (Object) ois.readObject();
 
-                        if(ob instanceof CoronosAuth) {
-                            CoronosAuth temp = (CoronosAuth) ob;
-                            String username = temp.getUsername().toLowerCase();
-                            String password = temp.getPassword();
-                            String ipTotal = ss.getLocalSocketAddress().toString();
-                            String ipS = ipTotal.split("/")[0];
-                            System.out.printf("[AUTH] - Attempted Login - %s\n[AUTH] - Username: %s\n[AUTH] - Password: %s\n", ipS, username, password);
-                            for(String us : users){
-                                String tempUser = us.split(":")[0].toLowerCase();
-                                String tempPass = us.split(":")[1];
+                    try {
+                        while(true) {
+                            Object ob = (Object) ois.readObject();
 
-                                if(tempUser.equals(username)) {
-                                    if(tempPass.equals(password)) {
+                            if(ob instanceof CoronosAuth) {
+                                CoronosAuth temp = (CoronosAuth) ob;
+
+                                String username = temp.getUsername().toLowerCase();
+                                String password = temp.getPassword();
+                                String ipTotal = ss.getLocalSocketAddress().toString();
+                                String ipS = ipTotal.split("/")[0];
+                                System.out.printf("[AUTH] - Attempted Login - %s\n[AUTH] - Username: %s\n[AUTH] - Password: %s\n", ipS, username, password);
+
+                                if(users.contains(username)) {
+                                    String tempPassword = users.get(users.indexOf(username) + 1);
+
+                                    if(password.equals(tempPassword)) {
                                         System.out.println("[AUTH] - Successful Login - Valid user");
                                         temp.setAllow(true);
-                                        break;
+
                                     } else {
                                         System.out.println("[AUTH] - Failed Login - Invalid Password");
                                         temp.setAllow(false, "Invalid Password");
-                                        oos.writeObject("Retry");
-                                        oos.flush();
                                     }
                                 } else {
                                     System.out.println("[AUTH] - Failed Login - User Not Found");
-                                    temp.setAllow(false, "Username Does Not Exist.");
-                                    oos.writeObject("Retry");
-                                    oos.flush();
+                                    temp.setAllow(false, "Invalid Username");
                                 }
+                                oos.writeObject(temp);
+                                oos.flush();
                             }
-                            oos.writeObject((Object)temp);
-                            oos.flush();
                         }
-                    }
-                    catch(ClassNotFoundException cnfe){
+                    } catch(ClassNotFoundException cnfe){
                         cnfe.printStackTrace();
+                    } catch(IOException ioe) {
+                        ioe.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }//end first try catch block
-            }//end while loop
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+
+
+
         }//end run()
     }//end InnerThread
 }//end CoronosServer

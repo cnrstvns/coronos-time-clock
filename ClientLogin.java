@@ -67,21 +67,14 @@ public class ClientLogin implements ActionListener{
             Socket s = new Socket(InetAddress.getLocalHost(), 16789);
             oos = new ObjectOutputStream(s.getOutputStream());
             ois = new ObjectInputStream(s.getInputStream());
-        }
-        
-        catch (UnknownHostException e) {
+            serverListener();
+        } catch (UnknownHostException e) {
             e.printStackTrace();
-        }
-        
-        catch (BindException be) {
+        } catch (BindException be) {
             be.printStackTrace();
-        }
-        
-        catch(ConnectException ce){
+        } catch(ConnectException ce){
             JOptionPane.showMessageDialog(loginButton, "Failed to connect to server, please contact your System Administrator", "Connection Error", JOptionPane.ERROR_MESSAGE);
-        }
-        
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
 
@@ -107,48 +100,45 @@ public class ClientLogin implements ActionListener{
         else if(actionString.equals("Login")){
             char[] pass = passWordField.getPassword();
             String password = new String(pass);
-            CoronosAuth ca = new CoronosAuth(userNameField.getText(), password);
+            CoronosAuth auth = new CoronosAuth(userNameField.getText(), password);
             try{
-                oos.writeObject((Object) ca);
+                oos.writeObject(auth);
                 oos.flush();
+            } catch(IOException ioe){
+                ioe.printStackTrace();
             }
-            catch(IOException ioe){}
-            while(true){
-                try{
-                    Object obj = ois.readObject();
-                    System.out.println("Reading Object");
-                    if(obj instanceof CoronosAuth){
-                        System.out.println("Yes CoronosAuth Object");
-                        CoronosAuth resp = (CoronosAuth) obj;
-                        System.out.println("Casting Object");
-                        allow = resp.getAllow();
-                        System.out.println("Reading Access");
-                        reason = resp.getReason();
-                        System.out.println("Reading Reason");
-                        if(allow){
-                            System.out.println("[AUTH] - Successful Login - Authentication Successful!");
-                            break;
-                        }
-                        else{
-                            System.out.println("[AUTH] - Failed Login - Authentication Failed!");
-                            JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
-                            System.out.println("After Else");
-                        }
+        }
+    }
+
+    public void serverListener() {
+        while(true){
+            try{
+                Object obj = ois.readObject();
+
+                if(obj instanceof CoronosAuth){
+                    CoronosAuth returned = (CoronosAuth) obj;
+
+                    allow = returned.getAllow();
+                    reason = returned.getReason();
+
+                    if(allow) {
+                        System.out.println("[AUTH] - Successful Login - Authentication Successful!");
+                        loginFrame.setVisible(false);
+                        ClientGUI cg = new ClientGUI();
+                    } else {
+                        System.out.println("[AUTH] - Failed Login - Authentication Failed!");
+                        JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
                     }
                 }
-                catch(IOException ioe){
-                    ioe.printStackTrace();
-                }
-                catch(ClassNotFoundException cnfe){
-                    cnfe.printStackTrace();
-                }
-                catch(NullPointerException npe){
-                    npe.printStackTrace();
-                }
             }
-            if(allow){
-                loginFrame.setVisible(false);
-                ClientGUI cg = new ClientGUI();
+            catch(IOException ioe){
+                ioe.printStackTrace();
+            }
+            catch(ClassNotFoundException cnfe){
+                cnfe.printStackTrace();
+            }
+            catch(NullPointerException npe){
+                npe.printStackTrace();
             }
         }
     }

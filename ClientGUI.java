@@ -71,6 +71,7 @@ public class ClientGUI {
         jfFrame.setVisible(true);
         jfFrame.pack();
 		jfFrame.setSize(500, 200);
+        
         //settings for frame
 
         ActionListener clockUpdate = new ActionListener(){
