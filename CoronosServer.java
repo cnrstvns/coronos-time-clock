@@ -69,6 +69,7 @@ public class CoronosServer {
 
     private JTextArea chatArea;
     private Vector<String> users = new Vector<>();
+    private Vector<ObjectOutputStream> messageStreams = new Vector<>();
     private InetAddress localhost;
 
     //global Networking / IO declaration
@@ -246,6 +247,7 @@ public class CoronosServer {
             connectedUsers.setText(Integer.toString(connected));
             try{
                 oos = new ObjectOutputStream(threadSocket.getOutputStream());
+                messageStreams.add(oos);
                 ois = new ObjectInputStream(threadSocket.getInputStream());
             }
             catch(IOException ioe){
@@ -282,6 +284,15 @@ public class CoronosServer {
                                 }
                                 oos.writeObject(temp);
                                 oos.flush();
+                            }
+
+                            else if(ob instanceof Message){
+
+                                Message temp = (Message) ob;
+
+                                for(ObjectOutputStream oos: messageStreams){
+                                    oos.writeObject(temp.toString());
+                                }
                             }
                     } catch(ClassNotFoundException cnfe){
                         cnfe.printStackTrace();

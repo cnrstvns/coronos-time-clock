@@ -2,28 +2,46 @@ import javax.swing.*;    //for JFrame, JButton
 import java.awt.*;       //for FlowLayout
 import java.awt.event.*; //for ActionEvent, ActionListener
 import java.io.*;        //for File IO
+import java.net.*;
 import java.util.*;      //For Timer
 import java.text.*;      //For Formatting
 import javax.swing.border.Border;
 
 
-public class ClientGUI {
+public class ClientGUI implements ActionListener{
     JFrame jfFrame;
     JMenuBar jmMenuBar;
     JMenu jmFile;
     JMenu jmHelp;
+    JTextArea jtaWindow;
     JMenuItem jmExit;
     JMenuItem jmAbout;
     JLabel clockLabel;
     JPanel clockPanel;
     javax.swing.Timer clockTimer;
     Font customFont;
+    private String username;
+    private Socket s;
 
 
-    public ClientGUI() {
+    JButton openMessage;
+
+
+    public ClientGUI(String username, Socket s) {
+
+
+
+        openMessage = new JButton("Open Chat");
+        openMessage.addActionListener(this);
+
+
+
         fontLoader();
 
-        jfFrame = new JFrame("Coronos");
+        this.username = username;
+        this.s = s;
+
+        jfFrame = new JFrame(String.format("Coronos - %s", username));
         jfFrame.setLayout(new GridLayout(2, 1));
         //Instantiate JFrame, add Title, add LayoutManager GridLayout
 
@@ -59,6 +77,7 @@ public class ClientGUI {
         clockLabel.setFont(customFont);
         clockLabel.setForeground(Color.BLACK);
         clockPanel.add(clockLabel);
+        clockPanel.add(openMessage);
         //instantiating JLabel, setting Font and Color, adding to clockPanel
 
         jfFrame.add(clockPanel);
@@ -98,11 +117,12 @@ public class ClientGUI {
         //timer to update clockLabel
     }
 
-    /**
-     * main: A method that instantiates a new TimerFun object
-     */
-    public static void main(String[] args){ 
-        ClientGUI tf = new ClientGUI();
+    public void actionPerformed(ActionEvent ae){
+        String actionString = ae.getActionCommand();
+        System.out.println(actionString);
+        if(actionString.equals("Open Chat")){
+            System.out.println("Opening Chat.");
+        }
     }
 
     public void fontLoader(){

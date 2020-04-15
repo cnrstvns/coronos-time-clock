@@ -5,6 +5,7 @@ import java.io.*;        //for File IO
 import java.util.*;      //For Timer
 import java.text.*;      //For Formatting
 import javax.swing.border.Border;
+
 import java.net.*;
 //Importing necessary modules for program.
 
@@ -26,8 +27,10 @@ public class ClientLogin implements ActionListener{
     ObjectOutputStream oos;
     ObjectInputStream ois;
     JFrame loginFrame;
+    JTextArea jtaWindow;
     Boolean allow;
     String reason;
+    Socket s;
     
     public ClientLogin(){
         loginFrame = new JFrame("Coronos Login");
@@ -64,7 +67,7 @@ public class ClientLogin implements ActionListener{
         loginFrame.pack();
 
         try {
-            Socket s = new Socket(InetAddress.getLocalHost(), 16789);
+            s = new Socket(InetAddress.getLocalHost(), 16789);
             oos = new ObjectOutputStream(s.getOutputStream());
             ois = new ObjectInputStream(s.getInputStream());
             serverListener();
@@ -124,11 +127,17 @@ public class ClientLogin implements ActionListener{
                     if(allow) {
                         System.out.println("[AUTH] - Successful Login - Authentication Successful!");
                         loginFrame.setVisible(false);
-                        ClientGUI cg = new ClientGUI();
+                        String username = userNameField.getText();
+                        ClientGUI cg = new ClientGUI(username, s);
+                        jtaWindow = cg.getArea();
                     } else {
                         System.out.println("[AUTH] - Failed Login - Authentication Failed!");
                         JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
                     }
+                }
+
+                if(obj instanceof Message){
+                    Message message = (Message) obj;
                 }
             }
             catch(IOException ioe){
