@@ -1,16 +1,8 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.BindException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 import java.util.*;
-import javax.swing.*;    //for JFrame, JButton
+import javax.swing.*;
 import java.awt.*; 
-import java.awt.event.*;
 
 
 /**
@@ -39,13 +31,49 @@ public class CoronosServer {
     private JFrame serverFrame;
     private JPanel serverInfo;
     private JLabel serverAddress;
+    private JPanel encompassPanel;
+    private JPanel chatPanel;
+    private JPanel opsPanel;
+    private JPanel settingsPanel;
+    private JPanel chatBar;
     private JLabel hostLabel;
+    private JLabel portLabel;
+    public int connected = 0;
+    public JLabel connectedUsers;
+
+
+    private JButton b1;
+    private JButton b2;
+    private JButton b3;
+    private JButton b4;
+    private JButton b5;
+
+    private JButton b6;
+    private JButton b7;
+    private JButton b8;
+    private JButton b9;
+    private JButton b0;
+
+    JLabel t1;
+    JLabel t2;
+    JLabel t3;
+    JLabel t4;
+    JLabel t5;
+    
+    JLabel t6;
+    JLabel t7;
+    JLabel t8;
+    JLabel t9;
+    JLabel t0;
+
+
+    private JTextArea chatArea;
     private Vector<String> users = new Vector<>();
     private InetAddress localhost;
 
     //global Networking / IO declaration
     private ServerSocket ss;
-    private Socket s;
+    public Socket s;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
 
@@ -66,33 +94,131 @@ public class CoronosServer {
         }
         catch(UnknownHostException uhe){}
 
+        t1 = new JLabel("Test");
+        t2 = new JLabel("Test");
+        t3 = new JLabel("Test");
+        t4 = new JLabel("Test");
+        t5 = new JLabel("Test");
+
+        t6 = new JLabel("Test");
+        t7 = new JLabel("Test");
+        t8 = new JLabel("Test");
+        t9 = new JLabel("Test");
+        t0 = new JLabel("Test");
+
+
+
+
+        b1 = new JButton("Test:");
+        b2 = new JButton("Test");
+        b3 = new JButton("Test");
+        b4 = new JButton("Test");
+        b5 = new JButton("Test");
+
+        b6 = new JButton("Test");
+        b7 = new JButton("Test");
+        b8 = new JButton("Test");
+        b9 = new JButton("Test");
+        b0 = new JButton("Test");
+
+
+
         serverFrame = new JFrame("Coronos Server");
         serverFrame.setLayout(new BorderLayout());
+
         serverInfo = new JPanel();
         serverInfo.setLayout(new FlowLayout());
         serverInfo.setBorder(BorderFactory.createTitledBorder("Information"));
-        serverFrame.add(serverInfo, BorderLayout.CENTER);
+        serverFrame.add(serverInfo, BorderLayout.NORTH);
 
-        hostLabel = new JLabel("IP Address: ");
+        encompassPanel = new JPanel(new FlowLayout());
+
+        opsPanel = new JPanel();
+        opsPanel.setLayout(new GridLayout(5, 1));
+        opsPanel.setBorder(BorderFactory.createTitledBorder("Operations"));
+
+        opsPanel.add(t1);
+        opsPanel.add(b1);
+        opsPanel.add(t2);
+        opsPanel.add(b2);
+        opsPanel.add(t3);
+        opsPanel.add(b3);
+        opsPanel.add(t4);
+        opsPanel.add(b4);
+        opsPanel.add(t5);
+        opsPanel.add(b5);
+
+
+        encompassPanel.add(opsPanel);
+
+        chatPanel = new JPanel();
+        chatPanel.setLayout(new FlowLayout());
+        chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
+        chatArea = new JTextArea("Chat Will be here.\n\n\n\n\n\n");
+        chatArea.setEditable(false);
+        chatPanel.add(chatArea);
+        encompassPanel.add(chatPanel);
+
+        settingsPanel = new JPanel();
+        settingsPanel.setLayout(new GridLayout(5, 1));
+        settingsPanel.setBorder(BorderFactory.createTitledBorder("Settings"));
+
+
+        settingsPanel.add(b6);
+        settingsPanel.add(b7);
+        settingsPanel.add(b8);
+        settingsPanel.add(b9);
+        settingsPanel.add(b0);
+
+
+
+        encompassPanel.add(settingsPanel);
+
+        serverFrame.add(encompassPanel);
+
+        hostLabel = new JLabel("IP Address:");
         serverInfo.add(hostLabel);
 
         serverAddress = new JLabel();
         serverAddress.setText(localhost.toString().split("/")[1]);
         serverInfo.add(serverAddress);
 
+        portLabel = new JLabel((Integer.toString(PORT_NUMBER)));
+        JLabel port = new JLabel("Port: ");
+
+        connectedUsers = new JLabel(Integer.toString(connected));
+        JLabel connectedLabel = new JLabel("Connected Users: ");
+        serverInfo.add(port);
+        serverInfo.add(portLabel);
+        serverInfo.add(connectedLabel);
+        serverInfo.add(connectedUsers);
+
+
+        chatBar = new JPanel(new FlowLayout());
+        JButton send = new JButton("Send");
+        JTextField sendField = new JTextField(40);
+        chatBar.add(send);
+        chatBar.add(sendField);
+        serverFrame.add(chatBar, BorderLayout.SOUTH);
+
+
         serverFrame.setSize(400, 100);
         serverFrame.setVisible(true);
         serverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        serverFrame.setResizable(false);
+        //serverFrame.setResizable(false);
+        serverFrame.pack();
         serverFrame.setLocationRelativeTo(null);
 
         try {
             //create a serversocket
             ss = new ServerSocket(PORT_NUMBER);
-            //create a InnerThread Object
-            InnerThread it = new InnerThread();
-            //start the threaded object
-            it.start();
+            while(true){
+                s = ss.accept();
+                InnerThread it = new InnerThread(s);
+                //start the threaded object
+                it.start();
+                //create a InnerThread Object
+            }
         } catch(BindException be) {
             System.err.println("EXCEPTION: CoronosServer BindException, " +
                     "something is running on port " + PORT_NUMBER);
@@ -109,18 +235,25 @@ public class CoronosServer {
 
     class InnerThread extends Thread {
 
-        public InnerThread() {
+        private Socket threadSocket;
 
+        public InnerThread(Socket s) {
+            threadSocket = s;
         }
+
         public void run() {
+            connected++;
+            connectedUsers.setText(Integer.toString(connected));
+            try{
+                oos = new ObjectOutputStream(threadSocket.getOutputStream());
+                ois = new ObjectInputStream(threadSocket.getInputStream());
+            }
+            catch(IOException ioe){
+                System.err.println("[ERROR]: " + ioe);
+            }
             while(true) {
-                try {
-                    s = ss.accept();
-                    oos = new ObjectOutputStream(s.getOutputStream());
-                    ois = new ObjectInputStream(s.getInputStream());
 
                     try {
-                        while(true) {
                             Object ob = (Object) ois.readObject();
 
                             if(ob instanceof CoronosAuth) {
@@ -150,15 +283,11 @@ public class CoronosServer {
                                 oos.writeObject(temp);
                                 oos.flush();
                             }
-                        }
                     } catch(ClassNotFoundException cnfe){
                         cnfe.printStackTrace();
                     } catch(IOException ioe) {
                         ioe.printStackTrace();
                     }
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
             }
 
 
