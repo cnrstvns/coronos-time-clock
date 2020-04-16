@@ -22,14 +22,14 @@ public class ClientGUI implements ActionListener{
     Font customFont;
     private String username;
     private Socket s;
-
-
+    ObjectOutputStream oos;
+    ClientChat cc;
     JButton openMessage;
 
 
-    public ClientGUI(String username, Socket s) {
+    public ClientGUI(String username, Socket s,ObjectOutputStream _oos) {
 
-
+        oos = _oos;
 
         openMessage = new JButton("Open Chat");
         openMessage.addActionListener(this);
@@ -119,10 +119,15 @@ public class ClientGUI implements ActionListener{
 
     public void actionPerformed(ActionEvent ae){
         String actionString = ae.getActionCommand();
-        System.out.println(actionString);
+        //System.out.println(actionString);
         if(actionString.equals("Open Chat")){
+            cc = new ClientChat(s, username,oos);
             System.out.println("Opening Chat.");
         }
+    }
+    public void appendChat(Message _msg){
+        Message msg = _msg;
+        cc.appendArea(msg);
     }
 
     public void fontLoader(){

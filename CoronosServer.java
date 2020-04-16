@@ -287,11 +287,11 @@ public class CoronosServer {
                             }
 
                             else if(ob instanceof Message){
-
+                                System.out.print("test");
                                 Message temp = (Message) ob;
-
+                                System.out.print(messageStreams.size());
                                 for(ObjectOutputStream oos: messageStreams){
-                                    oos.writeObject(temp.toString());
+                                    oos.writeObject(temp);
                                 }
                             }
                     } catch(ClassNotFoundException cnfe){
