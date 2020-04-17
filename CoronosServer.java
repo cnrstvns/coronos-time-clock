@@ -2,7 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import javax.swing.*;
-import java.awt.*; 
+import java.awt.*;
+import java.awt.event.*;
 
 
 /**
@@ -24,7 +25,7 @@ import java.awt.*;
  *                    The duplication of this code without written consent of the authors is strictly prohibited.
  *
  */
-public class CoronosServer {
+public class CoronosServer implements ActionListener{
     //global constants
     private final int PORT_NUMBER = 16789;
 
@@ -54,19 +55,6 @@ public class CoronosServer {
     private JButton b9;
     private JButton b0;
 
-    JLabel t1;
-    JLabel t2;
-    JLabel t3;
-    JLabel t4;
-    JLabel t5;
-    
-    JLabel t6;
-    JLabel t7;
-    JLabel t8;
-    JLabel t9;
-    JLabel t0;
-
-
     private JTextArea chatArea;
     private Vector<String> users = new Vector<>();
     private Vector<ObjectOutputStream> messageStreams = new Vector<>();
@@ -95,34 +83,27 @@ public class CoronosServer {
         }
         catch(UnknownHostException uhe){}
 
-        t1 = new JLabel("Test");
-        t2 = new JLabel("Test");
-        t3 = new JLabel("Test");
-        t4 = new JLabel("Test");
-        t5 = new JLabel("Test");
+        b1 = new JButton("Add Employee");
+        b1.addActionListener(this);
+        b2 = new JButton("Modify Employee");
+        b2.addActionListener(this);
+        b3 = new JButton("Delete Employee");
+        b3.addActionListener(this);
+        b4 = new JButton("Generate Report");
+        b4.addActionListener(this);
+        b5 = new JButton("Reset Password");
+        b5.addActionListener(this);
 
-        t6 = new JLabel("Test");
-        t7 = new JLabel("Test");
-        t8 = new JLabel("Test");
-        t9 = new JLabel("Test");
-        t0 = new JLabel("Test");
-
-
-
-
-        b1 = new JButton("Test:");
-        b2 = new JButton("Test");
-        b3 = new JButton("Test");
-        b4 = new JButton("Test");
-        b5 = new JButton("Test");
-
-        b6 = new JButton("Test");
-        b7 = new JButton("Test");
-        b8 = new JButton("Test");
-        b9 = new JButton("Test");
+        b6 = new JButton("Edit Credentials");
+        b6.addActionListener(this);
+        b7 = new JButton("Wtf does this do");
+        b7.addActionListener(this);
+        b8 = new JButton("Shut Down Server");
+        b8.addActionListener(this);
+        b9 = new JButton("About");
+        b9.addActionListener(this);
         b0 = new JButton("Test");
-
-
+        b0.addActionListener(this);
 
         serverFrame = new JFrame("Coronos Server");
         serverFrame.setLayout(new BorderLayout());
@@ -138,15 +119,11 @@ public class CoronosServer {
         opsPanel.setLayout(new GridLayout(5, 1));
         opsPanel.setBorder(BorderFactory.createTitledBorder("Operations"));
 
-        opsPanel.add(t1);
+
         opsPanel.add(b1);
-        opsPanel.add(t2);
         opsPanel.add(b2);
-        opsPanel.add(t3);
         opsPanel.add(b3);
-        opsPanel.add(t4);
         opsPanel.add(b4);
-        opsPanel.add(t5);
         opsPanel.add(b5);
 
 
@@ -197,6 +174,7 @@ public class CoronosServer {
 
         chatBar = new JPanel(new FlowLayout());
         JButton send = new JButton("Send");
+        send.addActionListener(this);
         JTextField sendField = new JTextField(40);
         chatBar.add(send);
         chatBar.add(sendField);
@@ -229,6 +207,45 @@ public class CoronosServer {
             ioe.printStackTrace();
         }//end try catch block
     }//end constructor
+
+    public void actionPerformed(ActionEvent ae){
+        String actionString = ae.getActionCommand();
+        System.out.println(String.format("[ACTION] - %s", actionString));
+
+        if(actionString.equals("Add Employee")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Modify Employee")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Delete Employee")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Generate Report")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Reset Password")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Edit Credentials")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Wtf does this do")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Shut Down Server")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("About")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Test")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        if(actionString.equals("Send")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+    }
 
     public static void main(String [] args){
         CoronosServer serv = new CoronosServer();

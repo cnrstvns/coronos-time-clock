@@ -10,6 +10,7 @@ import javax.swing.border.Border;
 
 public class ClientGUI implements ActionListener{
     JFrame jfFrame;
+    JMenu menu;
     JMenuBar jmMenuBar;
     JMenu jmFile;
     JMenu jmHelp;
@@ -65,7 +66,7 @@ public class ClientGUI implements ActionListener{
         jmMenuBar.add(jmHelp);
         //adding JMenus to JMenuBar
 
-        jfFrame.add(jmMenuBar);
+        jfFrame.setJMenuBar(jmMenuBar);
         //adding JMenuBar to JFrame
 
         clockPanel = new JPanel(new FlowLayout());
@@ -120,9 +121,6 @@ public class ClientGUI implements ActionListener{
     public void actionPerformed(ActionEvent ae){
         String actionString = ae.getActionCommand();
         System.out.println(actionString);
-        if(actionString.equals("Open Chat")){
-            System.out.println("Opening Chat.");
-        }
     }
 
     public void fontLoader(){
