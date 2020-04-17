@@ -31,7 +31,8 @@ public class ClientLogin implements ActionListener{
     Boolean allow;
     String reason;
     Socket s;
-    
+    ClientGUI cg;
+
     public ClientLogin(){
         loginFrame = new JFrame("Coronos Login");
         loginFrame.setLayout(new GridLayout(3, 1));
@@ -47,6 +48,8 @@ public class ClientLogin implements ActionListener{
         passWord = new JPanel(new FlowLayout());
         passWordField = new JPasswordField(10);
         passWordLabel = new JLabel("Password:");
+        passWordField.addActionListener(this);
+        passWordField.setActionCommand("Login");
         passWordLabel.setLabelFor(passWordField);
         passWord.add(passWordLabel);
         passWord.add(passWordField);
@@ -128,8 +131,9 @@ public class ClientLogin implements ActionListener{
                         System.out.println("[AUTH] - Successful Login - Authentication Successful!");
                         loginFrame.setVisible(false);
                         String username = userNameField.getText();
-                        ClientGUI cg = new ClientGUI(username, s);
-                        jtaWindow = cg.getArea();
+                        cg = new ClientGUI(username, s,oos);
+
+                        //jtaWindow = cg.getArea();
                     } else {
                         System.out.println("[AUTH] - Failed Login - Authentication Failed!");
                         JOptionPane.showMessageDialog(loginButton, reason, "Login Error", JOptionPane.WARNING_MESSAGE);
@@ -138,6 +142,8 @@ public class ClientLogin implements ActionListener{
 
                 if(obj instanceof Message){
                     Message message = (Message) obj;
+                    cg.appendChat(message);
+                    System.out.println(message.toString());
                 }
             }
             catch(IOException ioe){

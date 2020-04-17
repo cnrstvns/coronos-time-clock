@@ -23,14 +23,14 @@ public class ClientGUI implements ActionListener{
     Font customFont;
     private String username;
     private Socket s;
-
-
+    ObjectOutputStream oos;
+    ClientChat cc;
     JButton openMessage;
 
 
-    public ClientGUI(String username, Socket s) {
+    public ClientGUI(String username, Socket s,ObjectOutputStream _oos) {
 
-
+        oos = _oos;
 
         openMessage = new JButton("Open Chat");
         openMessage.addActionListener(this);
