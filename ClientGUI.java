@@ -22,28 +22,40 @@ public class ClientGUI implements ActionListener{
     javax.swing.Timer clockTimer;
     Font customFont;
     private String username;
-    private Socket s;
-    ObjectOutputStream oos;
-    ClientChat cc;
-    JButton openMessage;
+    private JPanel chatPanel;
+    private JPanel actionPanel;
+    private JPanel gridPanel1;
+    private JPanel gridPanel2;
 
+    private JButton one;
+    private JButton two;
+    private JButton three;
+    private JButton four;
+    private JButton five;
+    
+    private JButton six;
+    private JButton seven;
+    private JButton eight;
+    private JButton nine;
+    private JButton ten;
+    
+    private JTextArea chatArea;
+    private JTextField chatField;
+    private JButton chatButton;
+    private JPanel areaPanel;
+    private JPanel sendPanel;
 
-    public ClientGUI(String username, Socket s,ObjectOutputStream _oos) {
+    private JPanel containerPanel;
+    private JScrollPane chatPane;
 
-        oos = _oos;
-
-        openMessage = new JButton("Open Chat");
-        openMessage.addActionListener(this);
-
-
+    public ClientGUI(String username) {
 
         fontLoader();
 
         this.username = username;
-        this.s = s;
 
         jfFrame = new JFrame(String.format("Coronos - %s", username));
-        jfFrame.setLayout(new GridLayout(2, 1));
+        jfFrame.setLayout(new BorderLayout());
         //Instantiate JFrame, add Title, add LayoutManager GridLayout
 
 
@@ -70,6 +82,7 @@ public class ClientGUI implements ActionListener{
         //adding JMenuBar to JFrame
 
         clockPanel = new JPanel(new FlowLayout());
+        containerPanel = new JPanel(new FlowLayout());
         Border blackline = BorderFactory.createTitledBorder("Current Time");
         clockPanel.setBorder(blackline);
         //instantiate JPanel for clock
@@ -78,10 +91,63 @@ public class ClientGUI implements ActionListener{
         clockLabel.setFont(customFont);
         clockLabel.setForeground(Color.BLACK);
         clockPanel.add(clockLabel);
-        clockPanel.add(openMessage);
-        //instantiating JLabel, setting Font and Color, adding to clockPanel
+        //instantiating JLabel, setting Font and Color, adding to clockPanel\
 
-        jfFrame.add(clockPanel);
+        gridPanel1 = new JPanel(new GridLayout(5, 1));
+        gridPanel2 = new JPanel(new GridLayout(5, 1));
+
+        one = new JButton("test");
+        two = new JButton("test");
+        three = new JButton("test");
+        four = new JButton("test");
+        five = new JButton("test");
+
+        six = new JButton("test");
+        seven = new JButton("test");
+        eight = new JButton("test");
+        nine = new JButton("test");
+        ten = new JButton("test");
+
+        gridPanel1.add(one);
+        gridPanel1.add(two);
+        gridPanel1.add(three);
+        gridPanel1.add(four);
+        gridPanel1.add(five);
+
+        gridPanel2.add(six);
+        gridPanel2.add(seven);
+        gridPanel2.add(eight);
+        gridPanel2.add(nine);
+        gridPanel2.add(ten);
+
+        actionPanel = new JPanel(new FlowLayout());
+        Border actionBorder = BorderFactory.createTitledBorder("Employee Actions");
+        actionPanel.setBorder(actionBorder);
+        actionPanel.add(gridPanel1);
+        actionPanel.add(gridPanel2);
+        containerPanel.add(actionPanel);
+
+        chatPanel = new JPanel(new BorderLayout());
+        areaPanel = new JPanel(new FlowLayout());
+        chatArea = new JTextArea("What");
+        chatPane = new JScrollPane(chatArea);
+        chatField = new JTextField(12);
+        chatButton = new JButton("Send");
+        sendPanel = new JPanel(new FlowLayout());
+        sendPanel.add(chatField);
+        sendPanel.add(chatButton);
+        Border chatBorder = BorderFactory.createTitledBorder("Chat Window");
+        chatPanel.setBorder(chatBorder);
+        chatPanel = new JPanel(new FlowLayout());
+        areaPanel.add(chatPane);
+        chatPanel.add(areaPanel, BorderLayout.NORTH);
+        chatPanel.add(sendPanel, BorderLayout.SOUTH);
+        containerPanel.add(chatPanel);
+
+        jfFrame.add(clockPanel, BorderLayout.NORTH);
+        jfFrame.add(containerPanel, BorderLayout.SOUTH);
+        //jfFrame.add(actionPanel, BorderLayout.WEST);
+        //jfFrame.add(chatPanel, BorderLayout.EAST);
         //adding clockPanel to JFrame
 
         //adding JPanels to JFrame
@@ -122,6 +188,10 @@ public class ClientGUI implements ActionListener{
         String actionString = ae.getActionCommand();
         System.out.println(actionString);
     }
+	
+	public static void main(String[] args){
+		ClientGUI cg = new ClientGUI("Demo");
+	}
 
     public void fontLoader(){
         try {
