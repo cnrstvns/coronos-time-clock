@@ -215,33 +215,43 @@ public class CoronosServer implements ActionListener{
         if(actionString.equals("Add Employee")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Modify Employee")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Delete Employee")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Generate Report")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Reset Password")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Edit Credentials")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Wtf does this do")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Shut Down Server")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("About")){
             System.out.println(String.format("[%s]", actionString));
         }
+
         if(actionString.equals("Test")){
             System.out.println(String.format("[%s]", actionString));
         }
+        
         if(actionString.equals("Send")){
             System.out.println(String.format("[%s]", actionString));
         }
