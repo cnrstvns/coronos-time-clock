@@ -5,9 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Dalton Kruppenbacher
- * @version 0.3
- * Revision Notes: Removed Joda Time
- *                 Replaced logic to calculate shift times
+ * @version 0.4
+ * Revision Notes: Added Boolean Methods to test for clockedIn Status
  *
  *
  * ISTE 121.01 CPS:ID2
@@ -49,6 +48,7 @@ public class Employee {
     private double overtimeRate = hourlyRate * OVERTIME_MULTIPLIER;
     private double totalWagesEarned;
     private double ytdTotal;
+    private boolean clockedIn;
 
 
     //global lists for storing items
@@ -87,6 +87,7 @@ public class Employee {
         vacationDaysBalance = VACATION_DEFAULT_BALANCE;
         sickDaysBalance = SICK_DEFAULT_BALANCE;
         ytdTotal = 0.0;
+        clockedIn = false;
     }//end constructor
 
     /**
@@ -173,6 +174,7 @@ public class Employee {
         }
         return totalWagesEarned;
     }//end calculateWages()
+
 
     /**
      * Accessor to get an Employee's First Name
@@ -413,6 +415,26 @@ public class Employee {
     public double getYtdTotal() {
         return ytdTotal;
     }//end getYtdTotal()
+
+    /**
+     * Accessor to get an Employee's Year-to-Date total
+     * @return clockedIn Whether the employee is clockedIn or not
+     *
+     * @since 0.4
+     */
+    public boolean getClockedIn() {
+        return clockedIn;
+    }//end getClockedIn()
+
+    /**
+     * Accessor to get an Employee's Year-to-Date total
+     * @param clockedIn
+     *
+     * @since 0.4
+     */
+    public void setClockedIn(boolean clockedIn) {
+        this.clockedIn = clockedIn;
+    }//end setClockedIn()
 
 }//end Employee class
 
