@@ -4,6 +4,8 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 
 /**
@@ -25,48 +27,24 @@ import java.awt.event.*;
  *                    The duplication of this code without written consent of the authors is strictly prohibited.
  *
  */
-public class CoronosServer implements ActionListener{
-    //global constants
-    private final int PORT_NUMBER = 16789;
+public class CoronosServer implements ActionListener {
 
-    private JFrame serverFrame;
-    private JPanel serverInfo;
-    private JLabel serverAddress;
-    private JPanel encompassPanel;
-    private JPanel chatPanel;
-    private JPanel opsPanel;
-    private JPanel settingsPanel;
-    private JPanel chatBar;
-    private JLabel hostLabel;
-    private JLabel portLabel;
-    public int connected = 0;
-    public JLabel connectedUsers;
-
-
-    private JButton b1;
-    private JButton b2;
-    private JButton b3;
-    private JButton b4;
-    private JButton b5;
-
-    private JButton b6;
-    private JButton b7;
-    private JButton b8;
-    private JButton b9;
-    private JButton b0;
-
-    private JTextArea chatArea;
-    private Vector<String> users = new Vector<>();
+    private JPanel serverInfo, encompassPanel, chatPanel, opsPanel, settingsPanel, chatBar;
+    private JLabel serverAddress, hostLabel, portLabel, connectedUsers;
     private Vector<ObjectOutputStream> messageStreams = new Vector<>();
-    private InetAddress localhost;
-
-    //global Networking / IO declaration
-    private ServerSocket ss;
-    public Socket s;
+    private JButton b1, b2, b3, b4, b5, b6, b7, b8, b9, b0;
+    private Vector<String> users = new Vector<>();
+    private final int PORT_NUMBER = 16789;
+    private javax.swing.Timer shutdownTimer;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
-
-    //global GUI attribute declaration
+    private InetAddress localhost;
+    private JTextField sendField;
+    private JTextArea chatArea;
+    private JFrame serverFrame;
+    public int connected = 0;
+    private ServerSocket ss;
+    public Socket s;
 
     /**
      * Default Constructor of the CoronosServer class
@@ -75,14 +53,151 @@ public class CoronosServer implements ActionListener{
      * @since 0.1
      */
     public CoronosServer() {
-        //GUI stuff
-        users.add("connor");
-        users.add("demo");
+
         try{
             localhost = InetAddress.getLocalHost();
         }
         catch(UnknownHostException uhe){}
 
+        uiBuilder();
+        usersBuilder();
+        
+        try {
+            //create a serversocket
+            ss = new ServerSocket(PORT_NUMBER);
+            while(true){
+                s = ss.accept();
+                InnerThread it = new InnerThread(s);
+                //start the threaded object
+                it.start();
+                //create a InnerThread Object
+            }
+        } catch(BindException be) {
+            System.err.println("EXCEPTION: CoronosServer BindException, " +
+                    "something is running on port " + PORT_NUMBER);
+        } catch(SocketException se) {
+            se.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }//end try catch block
+    }//end constructor
+
+    public void actionPerformed(ActionEvent ae){
+        String actionString = ae.getActionCommand();
+        System.out.println(String.format("[ACTION] - %s", actionString));
+
+        if(actionString.equals("Add Employee")){
+            String newUsername;
+            String newPassword;
+            System.out.println(String.format("[%s]", actionString));
+            ArrayList<String> usernames = new ArrayList<>();
+            for(String user:users){
+                usernames.add(user.split(":")[0]);
+            }
+            while(true){
+                newUsername = JOptionPane.showInputDialog("Username");
+                if(usernames.contains(newUsername)){
+                    JOptionPane.showMessageDialog(serverFrame, "User Already Exists", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                else if(newUsername.equals("")){
+                    JOptionPane.showMessageDialog(serverFrame, "Username Cannot be null", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else{
+                    break;
+                }
+            }
+
+            while(true){
+                newPassword = JOptionPane.showInputDialog("Password");
+                if(newPassword.length() < 8){
+                    JOptionPane.showMessageDialog(serverFrame, "Password must be longer than 7 characters", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                }
+                else{
+                    break;
+                }
+            }
+
+            int newID = users.size();
+            addUser(newUsername, newPassword, newID);
+            users.clear();
+            usersBuilder();
+            createRecord(newID);
+
+        }
+
+        if(actionString.equals("Modify Employee")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Delete Employee")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Generate Report")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Reset Password")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Edit Credentials")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Wtf does this do")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Shut Down Server")){
+
+            System.out.println(String.format("[%s]", actionString));
+            if(connected > 0){
+                System.out.println(String.format("[SHUTDOWN] - [%d Users Connected] - Aborting Shutdown...", connected));
+                JOptionPane.showMessageDialog(serverFrame, String.format("Cannot Shut Down, %d clients are connected. Please notify them of downtime before closing the server.", connected), "Shutdown Error", JOptionPane.WARNING_MESSAGE);
+            }
+            else{
+                try{
+                    System.err.println(String.format("[SHUTDOWN] - [%d Users Connected] - Aborting Shutdown...", connected));
+                    System.err.println(String.format("[SHUTDOWN] - [Timeout] - Waiting to Shut Down...", connected));
+                    Thread.sleep(2000);
+                    System.err.println(String.format("[SHUTDOWN] - [Timer Complete] - Shutting Down...", connected));
+                }
+                catch(InterruptedException ie){}
+                System.exit(0);
+            }
+        }
+
+        if(actionString.equals("About")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+
+        if(actionString.equals("Test")){
+            System.out.println(String.format("[%s]", actionString));
+        }
+        
+        if(actionString.equals("Send")){
+            System.out.println(String.format("[%s] - [ADMIN] - %s", actionString, sendField.getText()));
+            Message msg = new Message(String.format("ADMIN: %s\n", sendField.getText()));
+            sendField.setText("");
+            chatArea.append(msg.toString());
+            if(messageStreams.size() == 0){
+                chatArea.append("***Server Message: No clients are connected. Are you lonely?\n");
+            }
+            for(ObjectOutputStream client : messageStreams){
+                try{
+                    client.writeObject(msg);
+                    client.flush();
+                }
+                catch(IOException ioe) {
+                    System.err.println("[CHAT] - [SEND] - Error sending chat.");
+                }
+            }
+        }
+    }
+
+    public void uiBuilder(){
         b1 = new JButton("Add Employee");
         b1.addActionListener(this);
         b2 = new JButton("Modify Employee");
@@ -132,7 +247,7 @@ public class CoronosServer implements ActionListener{
         chatPanel = new JPanel();
         chatPanel.setLayout(new FlowLayout());
         chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
-        chatArea = new JTextArea("Chat Will be here.\n\n\n\n\n\n");
+        chatArea = new JTextArea(10, 10);
         chatArea.setEditable(false);
         chatPanel.add(chatArea);
         encompassPanel.add(chatPanel);
@@ -175,7 +290,7 @@ public class CoronosServer implements ActionListener{
         chatBar = new JPanel(new FlowLayout());
         JButton send = new JButton("Send");
         send.addActionListener(this);
-        JTextField sendField = new JTextField(40);
+        sendField = new JTextField(40);
         chatBar.add(send);
         chatBar.add(sendField);
         serverFrame.add(chatBar, BorderLayout.SOUTH);
@@ -187,73 +302,86 @@ public class CoronosServer implements ActionListener{
         //serverFrame.setResizable(false);
         serverFrame.pack();
         serverFrame.setLocationRelativeTo(null);
+    }
 
+    public void usersBuilder(){
+        JSONParser parser = new JSONParser();
+        
         try {
-            //create a serversocket
-            ss = new ServerSocket(PORT_NUMBER);
-            while(true){
-                s = ss.accept();
-                InnerThread it = new InnerThread(s);
-                //start the threaded object
-                it.start();
-                //create a InnerThread Object
+            Reader reader = new FileReader(".\\data\\users.json");
+            JSONObject jsonObject = (JSONObject) parser.parse(reader);
+            System.out.println(jsonObject);
+            JSONArray storedUsers = (JSONArray) jsonObject.get("users");
+            System.out.printf("Loaded %d users.\n", storedUsers.size());
+            Iterator<String> iterator = storedUsers.iterator();
+            while(iterator.hasNext()){
+                String storedUser = iterator.next();
+                users.add(storedUser);
             }
-        } catch(BindException be) {
-            System.err.println("EXCEPTION: CoronosServer BindException, " +
-                    "something is running on port " + PORT_NUMBER);
-        } catch(SocketException se) {
-            se.printStackTrace();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }//end try catch block
-    }//end constructor
-
-    public void actionPerformed(ActionEvent ae){
-        String actionString = ae.getActionCommand();
-        System.out.println(String.format("[ACTION] - %s", actionString));
-
-        if(actionString.equals("Add Employee")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Modify Employee")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Delete Employee")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Generate Report")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Reset Password")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Edit Credentials")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Wtf does this do")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Shut Down Server")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("About")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Test")){
-            System.out.println(String.format("[%s]", actionString));
+            reader.close();
         }
         
-        if(actionString.equals("Send")){
-            System.out.println(String.format("[%s]", actionString));
+        catch(FileNotFoundException fnfe){
+            System.err.println("[ERROR] - [usersBuilder] - File Not Found");
+        }
+
+        catch(ParseException pe) {
+            System.err.println("[ERROR] - [usersBuilder] - Exception occurred while parsing.");
+            System.out.println(pe);
+        }
+
+        catch(IOException ioe){
+            System.err.println("[ERROR] - [usersBuilder] - IO Exception.");
+        }
+    }
+
+    public void addUser(String username, String password, int id){
+        JSONParser parser = new JSONParser();
+
+        try {
+            Reader reader = new FileReader(".\\data\\users.json");
+            JSONObject jsonObject = (JSONObject) parser.parse(reader);
+            System.out.println(jsonObject);
+            JSONArray storedUsers = (JSONArray) jsonObject.get("users");
+            System.out.printf("Loaded %d users.\n", storedUsers.size());
+            String newUser = String.format("%s:%s:%d", username, password, id);
+            storedUsers.add(newUser);
+            JSONObject newJsonObject = new JSONObject();
+            newJsonObject.put("users", storedUsers);
+            System.out.println(storedUsers);
+            System.out.println(newJsonObject);
+            Writer writer = new FileWriter(".\\data\\users.json");
+            writer.write(newJsonObject.toJSONString());
+            System.out.printf("Saved %d users.\n", storedUsers.size());
+            reader.close();
+            writer.close();
+        }
+
+        catch(FileNotFoundException fnfe){
+            System.err.println("[ERROR] - [usersBuilder] - File Not Found");
+        }
+
+        catch(ParseException pe) {
+            System.err.println("[ERROR] - [usersBuilder] - Exception occurred while parsing.");
+            System.out.println(pe);
+        }
+
+        catch(IOException ioe){
+            System.err.println("[ERROR] - [usersBuilder] - IO Exception.");
+        }
+    }
+
+    public void createRecord(int id){
+        try{
+            String filename = String.format(".\\data\\records\\%d.json", id);
+            File file = new File(filename);
+            Writer writer = new FileWriter(filename);
+            JSONObject obj = new JSONObject();
+            writer.write(obj.toJSONString());
+            writer.close();
+        }
+        catch(IOException ioe) {
+            System.err.println("[ERROR] - [createRecord] - IO Error");
         }
     }
 
@@ -283,9 +411,10 @@ public class CoronosServer implements ActionListener{
             while(true) {
 
                     try {
+
                             Object ob = (Object) ois.readObject();
 
-                            if(ob instanceof CoronosAuth) {
+                            if (ob instanceof CoronosAuth) {
                                 CoronosAuth temp = (CoronosAuth) ob;
 
                                 String username = temp.getUsername().toLowerCase();
@@ -294,39 +423,60 @@ public class CoronosServer implements ActionListener{
                                 String ipS = ipTotal.split("/")[0];
                                 System.out.printf("[AUTH] - Attempted Login - %s\n[AUTH] - Username: %s\n[AUTH] - Password: %s\n", ipS, username, password);
 
-                                if(users.contains(username)) {
-                                    String tempPassword = users.get(users.indexOf(username) + 1);
-
-                                    if(password.equals(tempPassword)) {
-                                        System.out.println("[AUTH] - Successful Login - Valid user");
-                                        temp.setAllow(true);
-
+                                for (String user : users) {
+                                    String userName = user.split(":")[0];
+                                    String passWord = user.split(":")[1];
+                                    if (username.equalsIgnoreCase(userName)) {
+                                        if (password.equals(passWord)) {
+                                            System.out.println("[AUTH] - Successful Login - Valid user");
+                                            temp.setAllow(true);
+                                        } else {
+                                            System.out.println("[AUTH] - Failed Login - Invalid Password");
+                                            temp.setAllow(false, "Invalid Password");
+                                        }
                                     } else {
-                                        System.out.println("[AUTH] - Failed Login - Invalid Password");
-                                        temp.setAllow(false, "Invalid Password");
+                                        System.out.println("[AUTH] - Failed Login - User Not Found");
+                                        temp.setAllow(false, "Invalid Username");
                                     }
-                                } else {
-                                    System.out.println("[AUTH] - Failed Login - User Not Found");
-                                    temp.setAllow(false, "Invalid Username");
                                 }
+
                                 oos.writeObject(temp);
                                 oos.flush();
-                            }
-
-                            else if(ob instanceof Message){
-                                System.out.print("test");
+                            } else if (ob instanceof Message) {
                                 Message temp = (Message) ob;
-                                System.out.print(messageStreams.size());
-                                for(ObjectOutputStream oos: messageStreams){
+                                System.out.printf("[MESSAGE] - [Received] - %s\n", temp.toString());
+                                chatArea.append(temp.toString());
+                                for (ObjectOutputStream oos : messageStreams) {
+                                    System.out.printf("[MESSAGE] - Sent\n");
                                     oos.writeObject(temp);
                                 }
                             }
-                    } catch(ClassNotFoundException cnfe){
+
+                    }
+
+                    catch(ClassNotFoundException cnfe) {
                         cnfe.printStackTrace();
-                    } catch(IOException ioe) {
-                        ioe.printStackTrace();
+                    }
+
+                    catch(EOFException eofe){
+                        connected--;
+                    }
+
+                    catch(SocketException se){
+                        break;
+                    }
+
+                    catch(IOException ioe) {
                     }
             }
+            connected--;
+            messageStreams.remove(oos);
+            connectedUsers.setText(String.format("%d", connected));
+            try{
+                s.close();
+            }
+            catch(IOException ioe){}
+
 
 
 

@@ -180,10 +180,11 @@ public class Combined implements ActionListener {
         chatPane = new JScrollPane(chatArea);
         chatField = new JTextField(12);
         chatButton = new JButton("Send");
+        chatButton.addActionListener(this);
         sendPanel = new JPanel(new FlowLayout());
         sendPanel.add(chatField);
         sendPanel.add(chatButton);
-        Border chatBorder = BorderFactory.createTitledBorder("Chat Window");
+        Border chatBorder = BorderFactory.createTitledBorder("Chat");
         chatPanel.setBorder(chatBorder);
         chatPanel.add(chatPane, BorderLayout.NORTH);
         chatPanel.add(sendPanel, BorderLayout.SOUTH);
@@ -249,8 +250,25 @@ public class Combined implements ActionListener {
             try{
                 oos.writeObject(auth);
                 oos.flush();
-            } catch(IOException ioe){
+            }
+            catch(IOException ioe){
                 ioe.printStackTrace();
+            }
+        }
+        else if(actionString.equals("Send")){
+            if(chatField.getText().equals("")){
+                return;
+            }
+            else{
+                Message msg = new Message(String.format("%s: %s\n", username, chatField.getText()));
+                chatField.setText("");
+                try{
+                    oos.writeObject(msg);
+                    oos.flush();
+                }
+                catch(IOException ioe){
+                    ioe.printStackTrace();
+                }
             }
         }
     }
@@ -283,8 +301,7 @@ public class Combined implements ActionListener {
 
                 if(obj instanceof Message){
                     Message message = (Message) obj;
-                    //cg.appendChat(message);
-                    System.out.println(message.toString());
+                    chatArea.append(String.format("%s", message.toString()));
                 }
             }
             catch(IOException ioe){
