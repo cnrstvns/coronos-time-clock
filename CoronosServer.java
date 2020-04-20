@@ -449,6 +449,7 @@ public class CoronosServer implements ActionListener {
                                 for (ObjectOutputStream oos : messageStreams) {
                                     System.out.printf("[MESSAGE] - Sent\n");
                                     oos.writeObject(temp);
+                                    oos.flush();
                                 }
                             }
 
