@@ -32,10 +32,13 @@ public class CoronosServer implements ActionListener {
     private JPanel serverInfo, encompassPanel, chatPanel, opsPanel, settingsPanel, chatBar;
     private JLabel serverAddress, hostLabel, portLabel, connectedUsers;
     private Vector<ObjectOutputStream> messageStreams = new Vector<>();
-    private JButton b1, b2, b3, b4, b5, b6, b7, b8, b9, b0;
+    private JButton b1, b2, b3, b4, b5;
     private Vector<String> users = new Vector<>();
     private final int PORT_NUMBER = 16789;
     private javax.swing.Timer shutdownTimer;
+    private JMenu jmFile, jmHelp, jmServer;
+    private JMenuBar jmMenuBar;
+    private JMenuItem jmExit, jmAbout, jmShutdown;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private InetAddress localhost;
@@ -87,42 +90,80 @@ public class CoronosServer implements ActionListener {
         System.out.println(String.format("[ACTION] - %s", actionString));
 
         if(actionString.equals("Add Employee")){
-            String newUsername;
-            String newPassword;
-            System.out.println(String.format("[%s]", actionString));
             ArrayList<String> usernames = new ArrayList<>();
             for(String user:users){
                 usernames.add(user.split(":")[0]);
             }
-            while(true){
-                newUsername = JOptionPane.showInputDialog("Username");
-                if(usernames.contains(newUsername)){
-                    JOptionPane.showMessageDialog(serverFrame, "User Already Exists", "User Registration Error", JOptionPane.ERROR_MESSAGE);
-                    continue;
-                }
-                else if(newUsername.equals("")){
-                    JOptionPane.showMessageDialog(serverFrame, "Username Cannot be null", "User Registration Error", JOptionPane.ERROR_MESSAGE);
-                }
-                else{
-                    break;
-                }
-            }
 
-            while(true){
-                newPassword = JOptionPane.showInputDialog("Password");
-                if(newPassword.length() < 8){
-                    JOptionPane.showMessageDialog(serverFrame, "Password must be longer than 7 characters", "User Registration Error", JOptionPane.ERROR_MESSAGE);
-                }
-                else{
-                    break;
-                }
-            }
+            JFrame addUser = new JFrame("Coronos - Add User");
+            addUser.setLayout(new GridLayout(3, 1));
+            JPanel topPanel = new JPanel(new FlowLayout());
+            JPanel centerPanel = new JPanel(new FlowLayout());
+            JPanel bottomPanel = new JPanel(new FlowLayout());
 
-            int newID = users.size();
-            addUser(newUsername, newPassword, newID);
-            users.clear();
-            usersBuilder();
-            createRecord(newID);
+            JLabel usernameLabel = new JLabel("Username:");
+            JTextField usernameField = new JTextField(10);
+            JLabel passwordLabel = new JLabel("Password:");
+            JTextField passwordField = new JTextField(10);
+            JLabel wageLabel = new JLabel("Hourly Pay:");
+            JTextField wageField = new JTextField(10);
+            JLabel roleLabel = new JLabel("Role:");
+            JTextField roleField = new JTextField(10);
+
+            JButton saveButton = new JButton("Save Employee");
+
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    String actionString = ae.getActionCommand();
+                    if(actionString.equals("Save Employee")){
+                        String newUsername = usernameField.getText().toLowerCase();
+                        String newPassword = passwordField.getText();
+                        String role = roleField.getText();
+                        double wage = Double.parseDouble(wageField.getText());
+                        int newID = users.size();
+
+                        if(usernames.contains(newUsername)){
+                            JOptionPane.showMessageDialog(serverFrame, "User Already Exists", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else if(newUsername.equals("")){
+                            JOptionPane.showMessageDialog(serverFrame, "Username Cannot be null", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else if(newPassword.length() < 8){
+                            JOptionPane.showMessageDialog(serverFrame, "Password must be longer than 7 characters", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else if(role.equals("")){
+                            JOptionPane.showMessageDialog(serverFrame, "Role cannot be null.", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else{
+                            addUser(newUsername, newPassword, newID);
+                            createRecord(newID, wage, role);
+                            users.clear();
+                            usersBuilder();
+                            addUser.setVisible(false);
+                        }
+                    }
+                }
+            });
+
+            topPanel.add(usernameLabel);
+            topPanel.add(usernameField);
+            topPanel.add(passwordLabel);
+            topPanel.add(passwordField);
+
+            centerPanel.add(wageLabel);
+            centerPanel.add(wageField);
+            centerPanel.add(roleLabel);
+            centerPanel.add(roleField);
+
+            bottomPanel.add(saveButton);
+
+            addUser.add(topPanel);
+            addUser.add(centerPanel);
+            addUser.add(bottomPanel);
+            addUser.setLocationRelativeTo(null);
+            addUser.setVisible(true);
+            addUser.pack();
 
         }
 
@@ -130,8 +171,76 @@ public class CoronosServer implements ActionListener {
             System.out.println(String.format("[%s]", actionString));
         }
 
-        if(actionString.equals("Delete Employee")){
-            System.out.println(String.format("[%s]", actionString));
+        if(actionString.equals("Disable Employee")){
+            JFrame disableFrame = new JFrame("Disable Employee");
+            disableFrame.setLayout(new GridLayout(2, 1));
+            JPanel topPanel = new JPanel(new FlowLayout());
+            JPanel bottomPanel = new JPanel(new FlowLayout());
+            JLabel disableLabel = new JLabel("Disable User:");
+            JTextField disableField = new JTextField(10);
+            JButton disableButton = new JButton("Disable");
+
+            disableButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    String actionString = ae.getActionCommand();
+                    System.out.println(actionString);
+                    String requested = disableField.getText().toLowerCase();
+                    String name = null;
+                    String id = null;
+                    boolean success = false;
+                    if(actionString.equals("Disable")) {
+                        for (String user : users) {
+                            name = user.split(":")[0];
+                            id = user.split(":")[2];
+                            //open file, delete them
+                            success = requested.equals(name);
+                            System.out.println(Boolean.toString(success));
+                        }
+
+
+                        if (success) {
+                            try {
+                                //TODO: custom dialog with icon
+                                Reader reader = new FileReader(String.format(".\\data\\records\\%s.json", id));
+                                JSONParser parser = new JSONParser();
+                                JSONObject jsonObject = (JSONObject) parser.parse(reader);
+                                reader.close();
+                                System.out.println(jsonObject.get("active"));
+                                jsonObject.put("active", false);
+                                System.out.println(jsonObject.get("active"));
+                                Writer writer = new FileWriter(String.format(".\\data\\records\\%s.json", id));
+                                writer.write(jsonObject.toJSONString());
+                                writer.close();
+                                JOptionPane.showMessageDialog(null, String.format("%s has been disabled.", name));
+                                disableFrame.setVisible(false);
+                            } catch (FileNotFoundException fnfe) {
+                                //TODO ERROR DIALOG
+                                fnfe.printStackTrace();
+                            } catch (IOException ioe) {
+                                //TODO ERROR DIALOG
+                                ioe.printStackTrace();
+                            } catch (ParseException pe) {
+                                //TODO ERROR DIALOG
+                                pe.printStackTrace();
+                            }
+
+                        }
+                        else {
+                            //TODO: custom dialog with ICON
+                            JOptionPane.showMessageDialog(serverFrame, "Could not find user record.", "Error Disabling Employee", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+            });
+
+            topPanel.add(disableLabel);
+            topPanel.add(disableField);
+            bottomPanel.add(disableButton);
+            disableFrame.add(topPanel);
+            disableFrame.add(bottomPanel);
+            disableFrame.setVisible(true);
+            disableFrame.pack();
+            disableFrame.setLocationRelativeTo(null);
         }
 
         if(actionString.equals("Generate Report")){
@@ -150,7 +259,7 @@ public class CoronosServer implements ActionListener {
             System.out.println(String.format("[%s]", actionString));
         }
 
-        if(actionString.equals("Shut Down Server")){
+        if(actionString.equals("Shut Down")){
 
             System.out.println(String.format("[%s]", actionString));
             if(connected > 0){
@@ -159,10 +268,9 @@ public class CoronosServer implements ActionListener {
             }
             else{
                 try{
-                    System.err.println(String.format("[SHUTDOWN] - [%d Users Connected] - Aborting Shutdown...", connected));
-                    System.err.println(String.format("[SHUTDOWN] - [Timeout] - Waiting to Shut Down...", connected));
+                    System.err.printf("[SHUTDOWN] - [Timeout] - Waiting to Shut Down...\n", connected);
                     Thread.sleep(2000);
-                    System.err.println(String.format("[SHUTDOWN] - [Timer Complete] - Shutting Down...", connected));
+                    System.err.printf("[SHUTDOWN] - [Timer Complete] - Shutting Down...\n", connected);
                 }
                 catch(InterruptedException ie){}
                 System.exit(0);
@@ -198,29 +306,43 @@ public class CoronosServer implements ActionListener {
     }
 
     public void uiBuilder(){
+        jmMenuBar = new JMenuBar();
+        //Instantiate JMenuBar
+
+        jmFile = new JMenu("File");
+        jmHelp = new JMenu("Help");
+        jmServer = new JMenu("Server");
+        //Adding Menus to JMenuBar
+
+        jmExit = new JMenuItem("Exit");
+        jmAbout = new JMenuItem("About");
+        jmShutdown = new JMenuItem("Shut Down");
+        jmShutdown.addActionListener(this);
+        //Instantiating Options for JMenus
+
+        jmFile.add(jmExit);
+        jmHelp.add(jmAbout);
+        jmServer.add(jmShutdown);
+        //adding Options to JMenus
+
+        jmMenuBar.add(jmFile);
+        jmMenuBar.add(jmHelp);
+        jmMenuBar.add(jmServer);
+        //adding JMenus to JMenuBar
+
         b1 = new JButton("Add Employee");
         b1.addActionListener(this);
         b2 = new JButton("Modify Employee");
         b2.addActionListener(this);
-        b3 = new JButton("Delete Employee");
+        b3 = new JButton("Disable Employee");
         b3.addActionListener(this);
         b4 = new JButton("Generate Report");
         b4.addActionListener(this);
         b5 = new JButton("Reset Password");
         b5.addActionListener(this);
 
-        b6 = new JButton("Edit Credentials");
-        b6.addActionListener(this);
-        b7 = new JButton("Wtf does this do");
-        b7.addActionListener(this);
-        b8 = new JButton("Shut Down Server");
-        b8.addActionListener(this);
-        b9 = new JButton("About");
-        b9.addActionListener(this);
-        b0 = new JButton("Test");
-        b0.addActionListener(this);
-
         serverFrame = new JFrame("Coronos Server");
+        serverFrame.setJMenuBar(jmMenuBar);
         serverFrame.setLayout(new BorderLayout());
 
         serverInfo = new JPanel();
@@ -231,9 +353,8 @@ public class CoronosServer implements ActionListener {
         encompassPanel = new JPanel(new FlowLayout());
 
         opsPanel = new JPanel();
-        opsPanel.setLayout(new GridLayout(5, 1));
+        opsPanel.setLayout(new GridLayout(5, 1, 15, 5));
         opsPanel.setBorder(BorderFactory.createTitledBorder("Operations"));
-
 
         opsPanel.add(b1);
         opsPanel.add(b2);
@@ -241,31 +362,15 @@ public class CoronosServer implements ActionListener {
         opsPanel.add(b4);
         opsPanel.add(b5);
 
-
         encompassPanel.add(opsPanel);
 
         chatPanel = new JPanel();
         chatPanel.setLayout(new FlowLayout());
         chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
-        chatArea = new JTextArea(10, 10);
+        chatArea = new JTextArea(9, 25);
         chatArea.setEditable(false);
         chatPanel.add(chatArea);
         encompassPanel.add(chatPanel);
-
-        settingsPanel = new JPanel();
-        settingsPanel.setLayout(new GridLayout(5, 1));
-        settingsPanel.setBorder(BorderFactory.createTitledBorder("Settings"));
-
-
-        settingsPanel.add(b6);
-        settingsPanel.add(b7);
-        settingsPanel.add(b8);
-        settingsPanel.add(b9);
-        settingsPanel.add(b0);
-
-
-
-        encompassPanel.add(settingsPanel);
 
         serverFrame.add(encompassPanel);
 
@@ -310,14 +415,10 @@ public class CoronosServer implements ActionListener {
         try {
             Reader reader = new FileReader(".\\data\\users.json");
             JSONObject jsonObject = (JSONObject) parser.parse(reader);
-            System.out.println(jsonObject);
+            System.out.printf("[USERS] - [userBuilder] - %s\n", jsonObject);
             JSONArray storedUsers = (JSONArray) jsonObject.get("users");
-            System.out.printf("Loaded %d users.\n", storedUsers.size());
-            Iterator<String> iterator = storedUsers.iterator();
-            while(iterator.hasNext()){
-                String storedUser = iterator.next();
-                users.add(storedUser);
-            }
+            System.out.printf("[USERS] - [userBuilder] - Loaded %d users.\n", storedUsers.size());
+            users.addAll(storedUsers);
             reader.close();
         }
         
@@ -327,7 +428,6 @@ public class CoronosServer implements ActionListener {
 
         catch(ParseException pe) {
             System.err.println("[ERROR] - [usersBuilder] - Exception occurred while parsing.");
-            System.out.println(pe);
         }
 
         catch(IOException ioe){
@@ -341,15 +441,12 @@ public class CoronosServer implements ActionListener {
         try {
             Reader reader = new FileReader(".\\data\\users.json");
             JSONObject jsonObject = (JSONObject) parser.parse(reader);
-            System.out.println(jsonObject);
             JSONArray storedUsers = (JSONArray) jsonObject.get("users");
             System.out.printf("Loaded %d users.\n", storedUsers.size());
             String newUser = String.format("%s:%s:%d", username, password, id);
             storedUsers.add(newUser);
             JSONObject newJsonObject = new JSONObject();
             newJsonObject.put("users", storedUsers);
-            System.out.println(storedUsers);
-            System.out.println(newJsonObject);
             Writer writer = new FileWriter(".\\data\\users.json");
             writer.write(newJsonObject.toJSONString());
             System.out.printf("Saved %d users.\n", storedUsers.size());
@@ -363,7 +460,6 @@ public class CoronosServer implements ActionListener {
 
         catch(ParseException pe) {
             System.err.println("[ERROR] - [usersBuilder] - Exception occurred while parsing.");
-            System.out.println(pe);
         }
 
         catch(IOException ioe){
@@ -371,12 +467,16 @@ public class CoronosServer implements ActionListener {
         }
     }
 
-    public void createRecord(int id){
+    public void createRecord(int id, double pay, String role){
         try{
             String filename = String.format(".\\data\\records\\%d.json", id);
             File file = new File(filename);
             Writer writer = new FileWriter(filename);
             JSONObject obj = new JSONObject();
+            obj.put("active", true);
+            obj.put("clockedIn", false);
+            obj.put("wage", pay);
+            obj.put("role", role);
             writer.write(obj.toJSONString());
             writer.close();
         }
@@ -421,6 +521,7 @@ public class CoronosServer implements ActionListener {
                                 String password = temp.getPassword();
                                 String ipTotal = ss.getLocalSocketAddress().toString();
                                 String ipS = ipTotal.split("/")[0];
+                                Boolean enabled = false;
                                 System.out.printf("[AUTH] - Attempted Login - %s\n[AUTH] - Username: %s\n[AUTH] - Password: %s\n", ipS, username, password);
 
                                 for (String user : users) {
@@ -428,8 +529,27 @@ public class CoronosServer implements ActionListener {
                                     String passWord = user.split(":")[1];
                                     if (username.equalsIgnoreCase(userName)) {
                                         if (password.equals(passWord)) {
-                                            System.out.println("[AUTH] - Successful Login - Valid user");
-                                            temp.setAllow(true);
+                                            String id = user.split(":")[2];
+                                            JSONParser parser = new JSONParser();
+                                            try{
+                                                Reader reader = new FileReader(String.format(".\\data\\records\\%s.json", id));
+                                                JSONObject jsonObject = (JSONObject) parser.parse(reader);
+                                                enabled = (Boolean) jsonObject.get("active");
+                                            }
+                                            catch(ParseException pe){
+                                                System.err.println("[ERROR] - [AUTH] - Login Parse Error");
+                                            }
+                                            catch(IOException ioe){
+                                                System.err.println("[ERROR] - [AUTH] - Login IO Error");
+                                            }
+                                            if(enabled){
+                                                System.out.println("[AUTH] - Successful Login - Valid user");
+                                                temp.setAllow(true);
+                                            }
+                                            else{
+                                                System.out.println("[AUTH] - Failed Login - Deactivated user");
+                                                temp.setAllow(false, "Account Deactivated");
+                                            }
                                         } else {
                                             System.out.println("[AUTH] - Failed Login - Invalid Password");
                                             temp.setAllow(false, "Invalid Password");
@@ -447,7 +567,7 @@ public class CoronosServer implements ActionListener {
                                 System.out.printf("[MESSAGE] - [Received] - %s\n", temp.toString());
                                 chatArea.append(temp.toString());
                                 for (ObjectOutputStream oos : messageStreams) {
-                                    System.out.printf("[MESSAGE] - Sent\n");
+                                    System.out.print("[MESSAGE] - Sent\n");
                                     oos.writeObject(temp);
                                     oos.flush();
                                 }
@@ -460,7 +580,7 @@ public class CoronosServer implements ActionListener {
                     }
 
                     catch(EOFException eofe){
-                        connected--;
+
                     }
 
                     catch(SocketException se){
