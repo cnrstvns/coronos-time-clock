@@ -177,9 +177,13 @@ public class Combined implements ActionListener {
         chatPanel = new JPanel(new BorderLayout());
         areaPanel = new JPanel(new FlowLayout());
         chatArea = new JTextArea(10, 10);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
         chatArea.setEditable(false);
         chatPane = new JScrollPane(chatArea);
         chatField = new JTextField(12);
+        chatField.addActionListener(this);
+        chatField.setActionCommand("Send");
         chatButton = new JButton("Send");
         chatButton.addActionListener(this);
         sendPanel = new JPanel(new FlowLayout());

@@ -437,6 +437,8 @@ public class CoronosServer implements ActionListener {
         chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
         chatArea = new JTextArea(9, 25);
         chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
         chatPanel.add(chatArea);
         encompassPanel.add(chatPanel);
 
@@ -464,6 +466,8 @@ public class CoronosServer implements ActionListener {
         JButton send = new JButton("Send");
         send.addActionListener(this);
         sendField = new JTextField(40);
+        sendField.addActionListener(this);
+        sendField.setActionCommand("Send");
         chatBar.add(send);
         chatBar.add(sendField);
         serverFrame.add(chatBar, BorderLayout.SOUTH);
