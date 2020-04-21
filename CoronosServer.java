@@ -523,7 +523,7 @@ public class CoronosServer implements ActionListener {
         }
 
         catch(FileNotFoundException fnfe){
-            System.err.println("[ERROR] - [usersBuilder] - File Not Found");
+            System.err.println("[ERROR] - [usersBuilder] - File Not Found.");
         }
 
         catch(ParseException pe) {
@@ -664,10 +664,9 @@ public class CoronosServer implements ActionListener {
             try{
                 s.close();
             }
-            catch(IOException ioe){}
-
-
-
+            catch(IOException ioe){
+                ioe.printStackTrace();
+            }
 
         }//end run()
     }//end InnerThread

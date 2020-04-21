@@ -119,8 +119,8 @@ public class Combined implements ActionListener {
 
         clockPanel = new JPanel(new FlowLayout());
         containerPanel = new JPanel(new FlowLayout());
-        Border blackline = BorderFactory.createTitledBorder("Current Time");
-        clockPanel.setBorder(blackline);
+        Border blackLine = BorderFactory.createTitledBorder("Current Time");
+        clockPanel.setBorder(blackLine);
         //instantiate JPanel for clock
 
         clockLabel = new JLabel();
