@@ -151,8 +151,9 @@ public class Combined implements ActionListener {
         eight.addActionListener(this);
         nine = new JButton("test");
         nine.addActionListener(this);
-        ten = new JButton("test");
+        ten = new JButton("Hide Chat");
         ten.addActionListener(this);
+        ten.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
 
         gridPanel1.add(one);
         gridPanel1.add(two);
@@ -270,6 +271,20 @@ public class Combined implements ActionListener {
                     ioe.printStackTrace();
                 }
             }
+        }
+        else if(actionString.equals("Hide Chat")){
+            ten.setText("Show Chat");
+            containerPanel.remove(chatPanel);
+            containerPanel.revalidate();
+            jfFrame.repaint();
+            ten.setToolTipText("Want to harass your boss? Enable chat!");
+        }
+        else if(actionString.equals("Show Chat")){
+            ten.setText("Hide Chat");
+            containerPanel.add(chatPanel);
+            containerPanel.revalidate();
+            jfFrame.repaint();
+            ten.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
         }
     }
 

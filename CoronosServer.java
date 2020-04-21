@@ -167,10 +167,6 @@ public class CoronosServer implements ActionListener {
 
         }
 
-        if(actionString.equals("Modify Employee")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
         if(actionString.equals("Disable Employee")){
             JFrame disableFrame = new JFrame("Disable Employee");
             disableFrame.setLayout(new GridLayout(2, 1));
@@ -241,6 +237,78 @@ public class CoronosServer implements ActionListener {
             disableFrame.setVisible(true);
             disableFrame.pack();
             disableFrame.setLocationRelativeTo(null);
+        }
+
+        if(actionString.equals("Enable Employee")){
+            JFrame enableFrame = new JFrame("Enable Employee");
+            enableFrame.setLayout(new GridLayout(2, 1));
+            JPanel topPanel = new JPanel(new FlowLayout());
+            JPanel bottomPanel = new JPanel(new FlowLayout());
+            JLabel enableLabel = new JLabel("Enable User:");
+            JTextField enableField = new JTextField(10);
+            JButton enableButton = new JButton("Enable");
+
+            enableButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    String actionString = ae.getActionCommand();
+                    System.out.println(actionString);
+                    String requested = enableField.getText().toLowerCase();
+                    String name = null;
+                    String id = null;
+                    boolean success = false;
+                    if(actionString.equals("Enable")) {
+                        for (String user : users) {
+                            name = user.split(":")[0];
+                            id = user.split(":")[2];
+                            //open file, delete them
+                            success = requested.equals(name);
+                            System.out.println(Boolean.toString(success));
+                        }
+
+
+                        if (success) {
+                            try {
+                                //TODO: custom dialog with icon
+                                Reader reader = new FileReader(String.format(".\\data\\records\\%s.json", id));
+                                JSONParser parser = new JSONParser();
+                                JSONObject jsonObject = (JSONObject) parser.parse(reader);
+                                reader.close();
+                                System.out.println(jsonObject.get("active"));
+                                jsonObject.put("active", true);
+                                System.out.println(jsonObject.get("active"));
+                                Writer writer = new FileWriter(String.format(".\\data\\records\\%s.json", id));
+                                writer.write(jsonObject.toJSONString());
+                                writer.close();
+                                JOptionPane.showMessageDialog(null, String.format("%s has been enabled.", name));
+                                enableFrame.setVisible(false);
+                            } catch (FileNotFoundException fnfe) {
+                                //TODO ERROR DIALOG
+                                fnfe.printStackTrace();
+                            } catch (IOException ioe) {
+                                //TODO ERROR DIALOG
+                                ioe.printStackTrace();
+                            } catch (ParseException pe) {
+                                //TODO ERROR DIALOG
+                                pe.printStackTrace();
+                            }
+
+                        }
+                        else {
+                            //TODO: custom dialog with ICON
+                            JOptionPane.showMessageDialog(serverFrame, "Could not find user record.", "Error Enabling Employee", JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                }
+            });
+
+            topPanel.add(enableLabel);
+            topPanel.add(enableField);
+            bottomPanel.add(enableButton);
+            enableFrame.add(topPanel);
+            enableFrame.add(bottomPanel);
+            enableFrame.setVisible(true);
+            enableFrame.pack();
+            enableFrame.setLocationRelativeTo(null);
         }
 
         if(actionString.equals("Generate Report")){
@@ -332,7 +400,7 @@ public class CoronosServer implements ActionListener {
 
         b1 = new JButton("Add Employee");
         b1.addActionListener(this);
-        b2 = new JButton("Modify Employee");
+        b2 = new JButton("Enable Employee");
         b2.addActionListener(this);
         b3 = new JButton("Disable Employee");
         b3.addActionListener(this);
