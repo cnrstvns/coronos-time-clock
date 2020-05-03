@@ -14,7 +14,6 @@ public class Combined implements ActionListener {
     private JPanel userName, passWord, options, chatPanel, actionPanel, gridPanel1, gridPanel2, sendPanel, clockPanel, containerPanel, areaPanel;
     private JButton loginButton, showPassword, chatButton, one, two, three, four, five, six, seven, eight, nine, ten;
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private JLabel userNameLabel, passWordLabel, clockLabel;
     private JLabel userNameLabel, passWordLabel, clockLabelOne,clockLabelTwo;
     private javax.swing.Timer clockTimerOne, clockTimerTwo;
     private JPasswordField passWordField;
