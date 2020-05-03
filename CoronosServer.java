@@ -619,6 +619,8 @@ public class CoronosServer implements ActionListener {
                                             if(enabled){
                                                 System.out.println("[AUTH] - Successful Login - Valid user");
                                                 temp.setAllow(true);
+                                                break;
+
                                             }
                                             else{
                                                 System.out.println("[AUTH] - Failed Login - Deactivated user");

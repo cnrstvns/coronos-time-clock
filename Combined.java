@@ -24,20 +24,15 @@ public class Combined implements ActionListener {
     private JMenuItem jmExit, jmAbout;
     private JTextField userNameField;
     private String reason, username;
-    private JSONObject employeeData;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private JTextField chatField;
     private JScrollPane chatPane;
-    private JSONArray clocktimes;
-    private JTextArea jtaWindow;
     private JTextArea chatArea;
     private JMenuBar jmMenuBar;
-    private boolean clockedIn;
     private Employee employee;
     private Font customFont;
     private Boolean allow;
-    private Employee me;
     private Socket s;
 
     public Combined(){
@@ -396,7 +391,7 @@ public class Combined implements ActionListener {
                         String username = userNameField.getText();
                         jfFrame.setTitle(String.format("Coronos Client - %s", username));
                         jfFrame.setVisible(true);
-                        Message message = new Message(String.format("%s has joined", username));
+                        Message message = new Message(String.format("%s has joined\n", username));
                         oos.writeObject((Object) message);
                         //set clientGUI to visible
 
