@@ -1,19 +1,19 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import javax.swing.*;    //for JFrame, JButton
-import java.awt.*;       //for FlowLayout
-import java.awt.event.*; //for ActionEvent, ActionListener
-import java.io.*;        //for File IO
-import java.util.*;      //For Timer
-import java.text.*;      //For Formatting
 import javax.swing.border.Border;
+import java.awt.event.*;
+import java.util.Timer;
+import javax.swing.*;
+import java.util.*;
+import java.text.*;
 import java.net.*;
+import java.awt.*;
+import java.io.*;
 
-public class Combined implements ActionListener {
+
+public class CoronosClient implements ActionListener {
     private JPanel userName, passWord, options, chatPanel, actionPanel, gridPanel1, gridPanel2, sendPanel, clockPanel, containerPanel, areaPanel;
-    private JButton loginButton, showPassword, chatButton, one, two, three, four, five, six, seven, eight, nine, ten;
-    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private JButton loginButton, showPassword, chatButton, jbReport, jbProfile, jbSave, jbPunchOut, jbViewPunches, jbFormatTime, jbPunchIn, jbHideChat;
     private JLabel userNameLabel, passWordLabel, clockLabelOne,clockLabelTwo;
     private javax.swing.Timer clockTimerOne, clockTimerTwo;
     private JPasswordField passWordField;
@@ -33,9 +33,10 @@ public class Combined implements ActionListener {
     private Employee employee;
     private Font customFont;
     private Boolean allow;
+    private Boolean saved;
     private Socket s;
 
-    public Combined(){
+    public CoronosClient(){
         loginBuilder();
         uiBuilder();
 
@@ -111,6 +112,9 @@ public class Combined implements ActionListener {
         jmAbout = new JMenuItem("About");
         //Instantiating Options for JMenus
 
+        jmExit.addActionListener(this);
+        jmAbout.addActionListener(this);
+
         jmFile.add(jmExit);
         jmHelp.add(jmAbout);
         //adding Options to JMenus
@@ -132,52 +136,47 @@ public class Combined implements ActionListener {
         clockLabelOne.setFont(customFont);
         clockLabelOne.setForeground(Color.BLACK);
         clockPanel.add(clockLabelOne);
-        //instantiating JLabel, setting Font and Color, adding to clockPanel\
+        //instantiating JLabel, setting Font and Color, adding to clockPanel
 
         clockLabelTwo = new JLabel();
         clockLabelTwo.setFont(customFont);
         clockLabelTwo.setForeground(Color.BLACK);
         clockPanel.add(clockLabelTwo);
         clockLabelTwo.setVisible(false);
-        //instantiating JLabel, setting Font and Color, adding to clockPanel\
+        //instantiating JLabel, setting Font and Color, adding to clockPanel
 
-        gridPanel1 = new JPanel(new GridLayout(5, 1, 15, 15));
-        gridPanel2 = new JPanel(new GridLayout(5, 1, 15, 15));
+        gridPanel1 = new JPanel(new GridLayout(4, 1, 15, 15));
+        gridPanel2 = new JPanel(new GridLayout(4, 1, 15, 15));
 
-        one = new JButton("Punch In");
-        one.addActionListener(this);
-        two = new JButton("View Report");
-        two.addActionListener(this);
-        three = new JButton("Current Period");
-        three.addActionListener(this);
-        four = new JButton("test");
-        four.addActionListener(this);
-        five = new JButton("Save");
-        five.addActionListener(this);
+        jbPunchIn = new JButton("Punch In");
+        jbReport = new JButton("View Report");
+        jbProfile = new JButton("View Profile");
+        jbSave = new JButton("Save");
+        jbPunchOut = new JButton("Punch Out");
+        jbViewPunches = new JButton("View Punches");
+        jbFormatTime = new JButton("12/24HR Time");
+        jbHideChat = new JButton("Hide Chat");
 
-        six = new JButton("Punch Out");
-        six.addActionListener(this);
-        seven = new JButton("View Punches");
-        seven.addActionListener(this);
-        eight = new JButton("View Paystub");
-        eight.addActionListener(this);
-        nine = new JButton("12/24HR Time");
-        nine.addActionListener(this);
-        ten = new JButton("Hide Chat");
-        ten.addActionListener(this);
-        ten.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
+        jbHideChat.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
 
-        gridPanel1.add(one);
-        gridPanel1.add(two);
-        gridPanel1.add(three);
-        gridPanel1.add(four);
-        gridPanel1.add(five);
+        jbPunchIn.addActionListener(this);
+        jbReport.addActionListener(this);
+        jbProfile.addActionListener(this);
+        jbSave.addActionListener(this);
+        jbPunchOut.addActionListener(this);
+        jbViewPunches.addActionListener(this);
+        jbFormatTime.addActionListener(this);
+        jbHideChat.addActionListener(this);
 
-        gridPanel2.add(six);
-        gridPanel2.add(seven);
-        gridPanel2.add(eight);
-        gridPanel2.add(nine);
-        gridPanel2.add(ten);
+        gridPanel1.add(jbPunchIn);
+        gridPanel1.add(jbReport);
+        gridPanel1.add(jbProfile);
+        gridPanel1.add(jbSave);
+
+        gridPanel2.add(jbPunchOut);
+        gridPanel2.add(jbViewPunches);
+        gridPanel2.add(jbFormatTime);
+        gridPanel2.add(jbHideChat);
 
         actionPanel = new JPanel(new FlowLayout());
         Border actionBorder = BorderFactory.createTitledBorder("Employee Actions");
@@ -316,18 +315,18 @@ public class Combined implements ActionListener {
             }
         }
         else if(actionString.equals("Hide Chat")){
-            ten.setText("Show Chat");
+            jbHideChat.setText("Show Chat");
             containerPanel.remove(chatPanel);
             containerPanel.revalidate();
             jfFrame.repaint();
-            ten.setToolTipText("Want to harass your boss? Enable chat!");
+            jbHideChat.setToolTipText("Want to harass your boss? Enable chat!");
         }
         else if(actionString.equals("Show Chat")){
-            ten.setText("Hide Chat");
+            jbHideChat.setText("Hide Chat");
             containerPanel.add(chatPanel);
             containerPanel.revalidate();
             jfFrame.repaint();
-            ten.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
+            jbHideChat.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
         }
         else if(actionString.equals("View Punches")){
             JSONArray punches = employee.getClockTimes();
@@ -339,6 +338,7 @@ public class Combined implements ActionListener {
             }
             else{
                 punchIn();
+                saved = false;
             }
         }
         else if(actionString.equals("Punch Out")){
@@ -347,12 +347,14 @@ public class Combined implements ActionListener {
             }
             else{
                 punchOut();
+                saved = false;
             }
         }
         else if(actionString.equals("Save")){
             try{
                 oos.writeObject((Object) employee);
                 oos.flush();
+                saved = true;
             }
             catch(IOException ioe){
                 System.err.println("Error saving employee data.");
@@ -371,6 +373,39 @@ public class Combined implements ActionListener {
             }
 
         }
+        else if(actionString.equals("Exit")){
+            TimerTask shutDown = new TimerTask() {
+                @Override
+                public void run() {
+                    if(saved){
+                        System.exit(0);
+                    }
+                    else{
+                        int n = JOptionPane.showConfirmDialog(null, "You have not saved your punches. Do you want to save before exiting?", "Unsaved Punches", JOptionPane.YES_NO_OPTION);
+                        if(n == 0){
+                            System.out.println("User Chose 0");
+                            try{
+                                oos.writeObject((Object) employee);
+                                oos.flush();
+                                System.out.println("[EXIT] - [Shutdown] - Shutting down. Save complete.");
+                            }
+                            catch(IOException ioe){
+                                System.err.println("[EXIT] - [Save] - Failed to Write to Server");
+                            }
+                        }
+                        else{
+                            System.out.println("[EXIT] - [Shutdown] - Shutting down without saving.");
+                            System.exit(0);
+                        }
+                    }
+                }
+            };
+            Timer timer = new java.util.Timer();
+            timer.schedule(shutDown, 500);
+        }
+        else if(actionString.equals("About")){
+            JOptionPane.showMessageDialog(null, "Coronos Time Clock © 2020\nAll Rights Reserved\n\nAuthors:\nConnor Stevens\nEverett Simone\nDalton Kruppenbacher\nBrian Zhu", "About Coronos", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     public void serverListener() {
@@ -379,6 +414,7 @@ public class Combined implements ActionListener {
                 Object obj = ois.readObject();
 
                 if(obj instanceof CoronosAuth){
+                    System.out.println("[IO] - [Server] - Received CoronosAuth Object");
                     CoronosAuth returned = (CoronosAuth) obj;
 
                     allow = returned.getAllow();
@@ -402,12 +438,13 @@ public class Combined implements ActionListener {
                 }
 
                 if(obj instanceof Message){
+                    System.out.println("[IO] - [Server] - Received Message Object");
                     Message message = (Message) obj;
                     chatArea.append(String.format("%s", message.toString()));
                 }
 
                 else if(obj instanceof Employee){
-                    System.out.println("Got employee...");
+                    System.out.println("[IO] - [Server] - Received Employee Object");
                     this.employee = (Employee) obj;
 
                 }
@@ -425,7 +462,7 @@ public class Combined implements ActionListener {
     }
 
     public static void main(String[] args){
-        Combined c = new Combined();
+        CoronosClient c = new CoronosClient();
     }
 
     public void fontLoader(){

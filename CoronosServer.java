@@ -4,6 +4,8 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Timer;
+
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
@@ -28,17 +30,20 @@ import org.json.simple.parser.*;
  *
  */
 public class CoronosServer implements ActionListener {
-
+    String[] states = {"", "Alabama", "Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
+            "Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts",
+            "Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire", "New Jersey", "New Mexico",
+            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+            "South Dakota", "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"};
     private JPanel serverInfo, encompassPanel, chatPanel, opsPanel, settingsPanel, chatBar;
     private JLabel serverAddress, hostLabel, portLabel, connectedUsers;
     private Vector<ObjectOutputStream> messageStreams = new Vector<>();
-    private JButton b1, b2, b3, b4, b5;
+    private JButton b1, b2, b3;
     private Vector<String> users = new Vector<>();
     private final int PORT_NUMBER = 16789;
-    private javax.swing.Timer shutdownTimer;
-    private JMenu jmFile, jmHelp, jmServer;
+    private JMenu jmFile, jmHelp;
     private JMenuBar jmMenuBar;
-    private JMenuItem jmExit, jmAbout, jmShutdown;
+    private JMenuItem jmAbout, jmShutdown;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private InetAddress localhost;
@@ -96,10 +101,13 @@ public class CoronosServer implements ActionListener {
             }
 
             JFrame addUser = new JFrame("Coronos - Add User");
-            addUser.setLayout(new GridLayout(3, 1));
+            addUser.setLayout(new GridLayout(7, 1));
             JPanel topPanel = new JPanel(new FlowLayout());
             JPanel centerPanel = new JPanel(new FlowLayout());
             JPanel bottomPanel = new JPanel(new FlowLayout());
+            JPanel panelfour = new JPanel(new FlowLayout());
+            JPanel panelfive = new JPanel(new FlowLayout());
+            JPanel panelsix = new JPanel(new FlowLayout());
 
             JLabel usernameLabel = new JLabel("Username:");
             JTextField usernameField = new JTextField(10);
@@ -109,6 +117,24 @@ public class CoronosServer implements ActionListener {
             JTextField wageField = new JTextField(10);
             JLabel roleLabel = new JLabel("Role:");
             JTextField roleField = new JTextField(10);
+
+            JLabel firstNameLabel = new JLabel("First Name:");
+            JLabel lastNameLabel = new JLabel("Last Name:");
+            JTextField firstNameField = new JTextField(10);
+            JTextField lastNameField = new JTextField(10);
+
+            JLabel addressLabel = new JLabel("Street Address:");
+            JTextField addressField = new JTextField(10);
+
+            JLabel cityLabel = new JLabel("City:");
+            JTextField cityField = new JTextField(10);
+
+            JLabel zipLabel = new JLabel("Zip Code");
+            JTextField zipField = new JTextField(10);
+
+            JLabel statesLabel = new JLabel("State:");
+            JComboBox statesBox = new JComboBox(states);
+            statesBox.setSelectedIndex(0);
 
             JButton saveButton = new JButton("Save Employee");
 
@@ -120,24 +146,34 @@ public class CoronosServer implements ActionListener {
                         String newUsername = usernameField.getText().toLowerCase();
                         String newPassword = passwordField.getText();
                         String role = roleField.getText();
-                        double wage = Double.parseDouble(wageField.getText());
+                        String firstName = firstNameField.getText();
+                        String lastName = lastNameField.getText();
+                        String address = addressField.getText();
+                        String zip = zipField.getText();
+                        int state = statesBox.getSelectedIndex();
+                        String selectedState = states[state];
+                        String city = cityField.getText();
+                        double wage;
+                        try{
+                            wage = Double.parseDouble(wageField.getText());
+                        }
+                        catch(NumberFormatException nfe){
+                            wage = 0.0;
+                        }
                         int newID = users.size();
 
                         if(usernames.contains(newUsername)){
                             JOptionPane.showMessageDialog(serverFrame, "User Already Exists", "User Registration Error", JOptionPane.ERROR_MESSAGE);
                         }
-                        else if(newUsername.equals("")){
-                            JOptionPane.showMessageDialog(serverFrame, "Username Cannot be null", "User Registration Error", JOptionPane.ERROR_MESSAGE);
-                        }
                         else if(newPassword.length() < 8){
                             JOptionPane.showMessageDialog(serverFrame, "Password must be longer than 7 characters", "User Registration Error", JOptionPane.ERROR_MESSAGE);
                         }
-                        else if(role.equals("")){
-                            JOptionPane.showMessageDialog(serverFrame, "Role cannot be null.", "User Registration Error", JOptionPane.ERROR_MESSAGE);
+                        else if(firstName.equals("") || lastName.equals("") || address.equals("") || selectedState.equals("") || city.equals("") || newUsername.equals("") || role.equals("")){
+                            JOptionPane.showMessageDialog(serverFrame, "Empty Field Detected, ensure all fields are filled.", "User Registration Error", JOptionPane.ERROR_MESSAGE);
                         }
                         else{
                             addUser(newUsername, newPassword, newID);
-                            createRecord(newID, wage, role);
+                            createRecord(newID, wage, role, firstName, lastName, address, zip, city, selectedState);
                             users.clear();
                             usersBuilder();
                             addUser.setVisible(false);
@@ -158,8 +194,29 @@ public class CoronosServer implements ActionListener {
 
             bottomPanel.add(saveButton);
 
+            panelfour.add(firstNameLabel);
+            panelfour.add(firstNameField);
+            panelfour.add(lastNameLabel);
+            panelfour.add(lastNameField);
+
+            panelfive.add(addressLabel);
+            panelfive.add(addressField);
+
+            panelfive.add(cityLabel);
+            panelfive.add(cityField);
+
+            panelsix.add(statesLabel);
+            panelsix.add(statesBox);
+
+            panelsix.add(zipLabel);
+            panelsix.add(zipField);
+
+
+            addUser.add(panelfour);
             addUser.add(topPanel);
             addUser.add(centerPanel);
+            addUser.add(panelfive);
+            addUser.add(panelsix);
             addUser.add(bottomPanel);
             addUser.setLocationRelativeTo(null);
             addUser.setVisible(true);
@@ -311,46 +368,28 @@ public class CoronosServer implements ActionListener {
             enableFrame.setLocationRelativeTo(null);
         }
 
-        if(actionString.equals("Generate Report")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Reset Password")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Edit Credentials")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Wtf does this do")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
         if(actionString.equals("Shut Down")){
 
-            System.out.println(String.format("[%s]", actionString));
             if(connected > 0){
                 System.out.println(String.format("[SHUTDOWN] - [%d Users Connected] - Aborting Shutdown...", connected));
                 JOptionPane.showMessageDialog(serverFrame, String.format("Cannot Shut Down, %d clients are connected. Please notify them of downtime before closing the server.", connected), "Shutdown Error", JOptionPane.WARNING_MESSAGE);
             }
             else{
-                try{
-                    System.err.printf("[SHUTDOWN] - [Timeout] - Waiting to Shut Down...\n", connected);
-                    Thread.sleep(2000);
-                    System.err.printf("[SHUTDOWN] - [Timer Complete] - Shutting Down...\n", connected);
-                }
-                catch(InterruptedException ie){}
-                System.exit(0);
+                System.out.println("[SHUTDOWN] - [Timeout] - Waiting to Shut Down...");
+                Timer timer = new Timer();
+                TimerTask time = new TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println("[SHUTDOWN] - [Timer Complete] - Shutting Down...");
+                        System.exit(0);
+                    }
+                };
+                timer.schedule(time, 2000);
             }
         }
 
         if(actionString.equals("About")){
-            System.out.println(String.format("[%s]", actionString));
-        }
-
-        if(actionString.equals("Save")){
-            System.out.println(String.format("[%s]", actionString));
+            JOptionPane.showMessageDialog(null, "Coronos Time Clock © 2020\nAll Rights Reserved\n\nAuthors:\nConnor Stevens\nEverett Simone\nDalton Kruppenbacher\nBrian Zhu", "About Coronos", JOptionPane.INFORMATION_MESSAGE);
         }
         
         if(actionString.equals("Send")){
@@ -379,23 +418,21 @@ public class CoronosServer implements ActionListener {
 
         jmFile = new JMenu("File");
         jmHelp = new JMenu("Help");
-        jmServer = new JMenu("Server");
         //Adding Menus to JMenuBar
 
-        jmExit = new JMenuItem("Exit");
         jmAbout = new JMenuItem("About");
         jmShutdown = new JMenuItem("Shut Down");
+
+        jmAbout.addActionListener(this);
         jmShutdown.addActionListener(this);
         //Instantiating Options for JMenus
 
-        jmFile.add(jmExit);
+        jmFile.add(jmShutdown);
         jmHelp.add(jmAbout);
-        jmServer.add(jmShutdown);
         //adding Options to JMenus
 
         jmMenuBar.add(jmFile);
         jmMenuBar.add(jmHelp);
-        jmMenuBar.add(jmServer);
         //adding JMenus to JMenuBar
 
         b1 = new JButton("Add Employee");
@@ -404,10 +441,6 @@ public class CoronosServer implements ActionListener {
         b2.addActionListener(this);
         b3 = new JButton("Disable Employee");
         b3.addActionListener(this);
-        b4 = new JButton("Generate Report");
-        b4.addActionListener(this);
-        b5 = new JButton("Reset Password");
-        b5.addActionListener(this);
 
         serverFrame = new JFrame("Coronos Server");
         serverFrame.setJMenuBar(jmMenuBar);
@@ -421,14 +454,12 @@ public class CoronosServer implements ActionListener {
         encompassPanel = new JPanel(new FlowLayout());
 
         opsPanel = new JPanel();
-        opsPanel.setLayout(new GridLayout(5, 1, 15, 5));
+        opsPanel.setLayout(new GridLayout(3, 1, 15, 5));
         opsPanel.setBorder(BorderFactory.createTitledBorder("Operations"));
 
         opsPanel.add(b1);
         opsPanel.add(b2);
         opsPanel.add(b3);
-        opsPanel.add(b4);
-        opsPanel.add(b5);
 
         encompassPanel.add(opsPanel);
 
@@ -439,7 +470,7 @@ public class CoronosServer implements ActionListener {
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
-        chatPanel.add(chatArea);
+        chatPanel.add(new JScrollPane(chatArea));
         encompassPanel.add(chatPanel);
 
         serverFrame.add(encompassPanel);
@@ -539,7 +570,8 @@ public class CoronosServer implements ActionListener {
         }
     }
 
-    public void createRecord(int id, double pay, String role){
+
+    public void createRecord(int id, double pay, String role, String firstName, String lastName, String address, String zip, String city, String state){
         try{
             String filename = String.format(".\\data\\records\\%d.json", id);
             File file = new File(filename);
@@ -549,6 +581,12 @@ public class CoronosServer implements ActionListener {
             obj.put("clockedIn", false);
             obj.put("wage", pay);
             obj.put("role", role);
+            obj.put("firstName", firstName);
+            obj.put("lastName", lastName);
+            obj.put("address", address);
+            obj.put("zip", zip);
+            obj.put("city", city);
+            obj.put("state", state);
             writer.write(obj.toJSONString());
             writer.close();
         }
