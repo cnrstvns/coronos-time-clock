@@ -349,7 +349,7 @@ public class CoronosServer implements ActionListener {
             System.out.println(String.format("[%s]", actionString));
         }
 
-        if(actionString.equals("Test")){
+        if(actionString.equals("Save")){
             System.out.println(String.format("[%s]", actionString));
         }
         
@@ -584,12 +584,13 @@ public class CoronosServer implements ActionListener {
 
                             if (ob instanceof CoronosAuth) {
                                 CoronosAuth temp = (CoronosAuth) ob;
-
+                                int userID = 0;
                                 String username = temp.getUsername().toLowerCase();
                                 String password = temp.getPassword();
                                 String ipTotal = ss.getLocalSocketAddress().toString();
                                 String ipS = ipTotal.split("/")[0];
                                 Boolean enabled = false;
+                                JSONObject userJson = null;
                                 System.out.printf("[AUTH] - Attempted Login - %s\n[AUTH] - Username: %s\n[AUTH] - Password: %s\n", ipS, username, password);
 
                                 for (String user : users) {
@@ -598,11 +599,12 @@ public class CoronosServer implements ActionListener {
                                     if (username.equalsIgnoreCase(userName)) {
                                         if (password.equals(passWord)) {
                                             String id = user.split(":")[2];
+                                            userID = Integer.parseInt(id);
                                             JSONParser parser = new JSONParser();
                                             try{
                                                 Reader reader = new FileReader(String.format(".\\data\\records\\%s.json", id));
-                                                JSONObject jsonObject = (JSONObject) parser.parse(reader);
-                                                enabled = (Boolean) jsonObject.get("active");
+                                                userJson = (JSONObject) parser.parse(reader);
+                                                enabled = (Boolean) userJson.get("active");
                                             }
                                             catch(ParseException pe){
                                                 System.err.println("[ERROR] - [AUTH] - Login Parse Error");
@@ -618,11 +620,13 @@ public class CoronosServer implements ActionListener {
                                                 System.out.println("[AUTH] - Failed Login - Deactivated user");
                                                 temp.setAllow(false, "Account Deactivated");
                                             }
-                                        } else {
+                                        }
+                                        else {
                                             System.out.println("[AUTH] - Failed Login - Invalid Password");
                                             temp.setAllow(false, "Invalid Password");
                                         }
-                                    } else {
+                                    }
+                                    else {
                                         System.out.println("[AUTH] - Failed Login - User Not Found");
                                         temp.setAllow(false, "Invalid Username");
                                     }
@@ -630,6 +634,12 @@ public class CoronosServer implements ActionListener {
 
                                 oos.writeObject(temp);
                                 oos.flush();
+                                if(enabled){
+                                    Employee out = new Employee(userJson);
+                                    out.setId(userID);
+                                    oos.writeObject((Object) out);
+                                    oos.flush();
+                                }
                             } else if (ob instanceof Message) {
                                 Message temp = (Message) ob;
                                 System.out.printf("[MESSAGE] - [Received] - %s\n", temp.toString());
@@ -639,6 +649,16 @@ public class CoronosServer implements ActionListener {
                                     oos.writeObject(temp);
                                     oos.flush();
                                 }
+                            } else if (ob instanceof Employee){
+                                System.out.println("Got employee...");
+                                System.out.println("Saving Employee...");
+                                Employee temp = (Employee) ob;
+                                int id = temp.getId();
+                                Writer writer = new FileWriter(String.format(".\\data\\records\\%s.json", id));
+                                String data = temp.getEmployeeData();
+                                writer.write(data);
+                                writer.flush();
+                                writer.close();
                             }
 
                     }

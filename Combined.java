@@ -1,3 +1,6 @@
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import javax.swing.*;    //for JFrame, JButton
 import java.awt.*;       //for FlowLayout
 import java.awt.event.*; //for ActionEvent, ActionListener
@@ -10,6 +13,7 @@ import java.net.*;
 public class Combined implements ActionListener {
     private JPanel userName, passWord, options, chatPanel, actionPanel, gridPanel1, gridPanel2, sendPanel, clockPanel, containerPanel, areaPanel;
     private JButton loginButton, showPassword, chatButton, one, two, three, four, five, six, seven, eight, nine, ten;
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private JLabel userNameLabel, passWordLabel, clockLabel;
     private JPasswordField passWordField;
     private javax.swing.Timer clockTimer;
@@ -19,15 +23,20 @@ public class Combined implements ActionListener {
     private JMenuItem jmExit, jmAbout;
     private JTextField userNameField;
     private String reason, username;
+    private JSONObject employeeData;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private JTextField chatField;
     private JScrollPane chatPane;
+    private JSONArray clocktimes;
     private JTextArea jtaWindow;
     private JTextArea chatArea;
     private JMenuBar jmMenuBar;
+    private boolean clockedIn;
+    private Employee employee;
     private Font customFont;
     private Boolean allow;
+    private Employee me;
     private Socket s;
 
     public Combined(){
@@ -35,7 +44,7 @@ public class Combined implements ActionListener {
         uiBuilder();
 
         try {
-            s = new Socket(InetAddress.getLocalHost(), 16789);
+            s = new Socket("localhost", 16789);
             oos = new ObjectOutputStream(s.getOutputStream());
             ois = new ObjectInputStream(s.getInputStream());
             serverListener();
@@ -149,7 +158,7 @@ public class Combined implements ActionListener {
         seven.addActionListener(this);
         eight = new JButton("View Paystub");
         eight.addActionListener(this);
-        nine = new JButton("test");
+        nine = new JButton("Save");
         nine.addActionListener(this);
         ten = new JButton("Hide Chat");
         ten.addActionListener(this);
@@ -286,6 +295,35 @@ public class Combined implements ActionListener {
             jfFrame.repaint();
             ten.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
         }
+        else if(actionString.equals("View Punches")){
+            JSONArray punches = employee.getClockTimes();
+            WageFrame wf = new WageFrame(punches);
+        }
+        else if(actionString.equals("Punch In")){
+            if(employee.getClockedIn()){
+                JOptionPane.showMessageDialog(null, "You are already clocked in.");
+            }
+            else{
+                punchIn();
+            }
+        }
+        else if(actionString.equals("Punch Out")){
+            if(!employee.getClockedIn()){
+                JOptionPane.showMessageDialog(null, "You are already clocked out.");
+            }
+            else{
+                punchOut();
+            }
+        }
+        else if(actionString.equals("Save")){
+            try{
+                oos.writeObject((Object) employee);
+                oos.flush();
+            }
+            catch(IOException ioe){
+                System.err.println("Error saving employee data.");
+            }
+        }
     }
 
     public void serverListener() {
@@ -306,6 +344,8 @@ public class Combined implements ActionListener {
                         String username = userNameField.getText();
                         jfFrame.setTitle(String.format("Coronos Client - %s", username));
                         jfFrame.setVisible(true);
+                        Message message = new Message(String.format("%s has joined", username));
+                        oos.writeObject((Object) message);
                         //set clientGUI to visible
 
                     } else {
@@ -317,6 +357,12 @@ public class Combined implements ActionListener {
                 if(obj instanceof Message){
                     Message message = (Message) obj;
                     chatArea.append(String.format("%s", message.toString()));
+                }
+
+                else if(obj instanceof Employee){
+                    System.out.println("Got employee...");
+                    this.employee = (Employee) obj;
+
                 }
             }
             catch(IOException ioe){
@@ -346,5 +392,31 @@ public class Combined implements ActionListener {
         } catch(FontFormatException e) {
             e.printStackTrace();
         }
+    }
+
+    public void punchIn(){
+        employee.setClockedIn(true);
+        JSONArray clockTimes = employee.getClockTimes();
+        Date date = new Date();
+        long now = date.getTime();
+        JSONObject newPunch = new JSONObject();
+        newPunch.put("in", now);
+        clockTimes.add(newPunch);
+        employee.setPunches(clockTimes);
+    }
+
+    public void punchOut(){
+        employee.setClockedIn(false);
+        JSONArray clockTimes = employee.getClockTimes();
+        Date date = new Date();
+        long now = date.getTime();
+        int index = clockTimes.size() -1;
+        JSONObject newPunch = (JSONObject) clockTimes.get(index);
+        long first = (long) newPunch.get("in");
+        double pay = employee.calculateForPeriod(first, now);
+        newPunch.put("out", now);
+        newPunch.put("pay", pay);
+        clockTimes.set(index, newPunch);
+        employee.setPunches(clockTimes);
     }
 }

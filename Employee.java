@@ -1,7 +1,10 @@
+import java.io.Serializable;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import org.json.simple.*;
 
 /**
  * @author Dalton Kruppenbacher
@@ -20,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  *                    (C) Dalton Kruppenbacher 2020
  *
  */
-public class Employee {
+public class Employee implements Serializable {
     //global constants
     private final double VACATION_DEFAULT_BALANCE = 0.00;
     private final double SICK_DEFAULT_BALANCE = 5.00;
@@ -49,7 +52,9 @@ public class Employee {
     private double totalWagesEarned;
     private double ytdTotal;
     private boolean clockedIn;
+    private int id;
 
+    private JSONObject employeeData = new JSONObject();
 
     //global lists for storing items
     ArrayList<Date> shiftClockDates = new ArrayList<>();
@@ -71,8 +76,7 @@ public class Employee {
      *
      * @since 0.1
      */
-    public Employee (String firstName, String lastName, String streetAddress, String city, String state, String zipCode,
-                     String socialSecurityNumber, String position, double hourlyRate) {
+    public Employee (JSONObject employeeData) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.streetAddress = streetAddress;
@@ -88,6 +92,7 @@ public class Employee {
         sickDaysBalance = SICK_DEFAULT_BALANCE;
         ytdTotal = 0.0;
         clockedIn = false;
+        this.employeeData = employeeData;
     }//end constructor
 
     /**
@@ -434,7 +439,45 @@ public class Employee {
      */
     public void setClockedIn(boolean clockedIn) {
         this.clockedIn = clockedIn;
+        employeeData.put("clockedIn", clockedIn);
     }//end setClockedIn()
+
+    public void setEmployeeData(JSONObject employeeData){
+        this.employeeData = employeeData;
+    }
+
+    public String getEmployeeData(){
+        return employeeData.toJSONString();
+    }
+
+    public JSONArray getClockTimes(){
+        return (JSONArray) employeeData.get("punches");
+    }
+
+    public void addClockTime(JSONObject jsa){
+        employeeData.put("punches", jsa);
+    }
+
+    public void setPunches(JSONArray jsa){
+        employeeData.put("punches", jsa);
+    }
+
+    public int getId(){
+        return this.id;
+    }
+
+    public void setId(int id){
+        this.id = id;
+    }
+
+    public double calculateForPeriod(long start, long end){
+        double rate = (double) employeeData.get("wage");
+        long duration = end - start;
+        long hours = TimeUnit.MILLISECONDS.toHours(duration);
+        double minutes = (double) (TimeUnit.MILLISECONDS.toMinutes(duration) % 60) /60;
+        double total = (double) hours + (double) minutes;
+        return total * rate;
+    }
 
 }//end Employee class
 
