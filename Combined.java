@@ -15,9 +15,11 @@ public class Combined implements ActionListener {
     private JButton loginButton, showPassword, chatButton, one, two, three, four, five, six, seven, eight, nine, ten;
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private JLabel userNameLabel, passWordLabel, clockLabel;
+    private JLabel userNameLabel, passWordLabel, clockLabelOne,clockLabelTwo;
+    private javax.swing.Timer clockTimerOne, clockTimerTwo;
     private JPasswordField passWordField;
-    private javax.swing.Timer clockTimer;
     private Boolean isRevealed = false;
+    private Boolean clockState = true;
     private JMenu menu, jmFile, jmHelp;
     private JFrame loginFrame, jfFrame;
     private JMenuItem jmExit, jmAbout;
@@ -132,10 +134,17 @@ public class Combined implements ActionListener {
         clockPanel.setBorder(blackLine);
         //instantiate JPanel for clock
 
-        clockLabel = new JLabel();
-        clockLabel.setFont(customFont);
-        clockLabel.setForeground(Color.BLACK);
-        clockPanel.add(clockLabel);
+        clockLabelOne = new JLabel();
+        clockLabelOne.setFont(customFont);
+        clockLabelOne.setForeground(Color.BLACK);
+        clockPanel.add(clockLabelOne);
+        //instantiating JLabel, setting Font and Color, adding to clockPanel\
+
+        clockLabelTwo = new JLabel();
+        clockLabelTwo.setFont(customFont);
+        clockLabelTwo.setForeground(Color.BLACK);
+        clockPanel.add(clockLabelTwo);
+        clockLabelTwo.setVisible(false);
         //instantiating JLabel, setting Font and Color, adding to clockPanel\
 
         gridPanel1 = new JPanel(new GridLayout(5, 1, 15, 15));
@@ -149,7 +158,7 @@ public class Combined implements ActionListener {
         three.addActionListener(this);
         four = new JButton("test");
         four.addActionListener(this);
-        five = new JButton("test");
+        five = new JButton("Save");
         five.addActionListener(this);
 
         six = new JButton("Punch Out");
@@ -158,7 +167,7 @@ public class Combined implements ActionListener {
         seven.addActionListener(this);
         eight = new JButton("View Paystub");
         eight.addActionListener(this);
-        nine = new JButton("Save");
+        nine = new JButton("12/24HR Time");
         nine.addActionListener(this);
         ten = new JButton("Hide Chat");
         ten.addActionListener(this);
@@ -186,9 +195,13 @@ public class Combined implements ActionListener {
         chatPanel = new JPanel(new BorderLayout());
         areaPanel = new JPanel(new FlowLayout());
         chatArea = new JTextArea(10, 10);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
         chatArea.setEditable(false);
         chatPane = new JScrollPane(chatArea);
         chatField = new JTextField(12);
+        chatField.addActionListener(this);
+        chatField.setActionCommand("Send");
         chatButton = new JButton("Send");
         chatButton.addActionListener(this);
         sendPanel = new JPanel(new FlowLayout());
@@ -200,6 +213,7 @@ public class Combined implements ActionListener {
         chatPanel.add(sendPanel, BorderLayout.SOUTH);
         containerPanel.add(chatPanel);
 
+       // jfFrame.add(clockPanelTwo, BorderLayout.NORTH);
         jfFrame.add(clockPanel, BorderLayout.NORTH);
         jfFrame.add(containerPanel, BorderLayout.SOUTH);
 
@@ -214,7 +228,7 @@ public class Combined implements ActionListener {
         
         //settings for frame
 
-        ActionListener clockUpdate = new ActionListener(){
+        ActionListener clockUpdateOne = new ActionListener(){
             /**
              * actionPerformed: A method to handle Events from a Timer
              * @param ae an ActionEvent
@@ -226,16 +240,42 @@ public class Combined implements ActionListener {
                 DateFormat format = new SimpleDateFormat("E, MMM d y HH:mm:ss");
                 //set format of clock
 
+                DateFormat otherFormat = new SimpleDateFormat("E, MMM, d y KK:mm:ss a");
+                //12 hour time
+
                 String dateTime = format.format(date);
                 //formatting date object using format template
 
-                clockLabel.setText(dateTime);
+                String otherDateTime = otherFormat.format(date);
+
+                clockLabelOne.setText(dateTime);
                 //setting clock text to formatted String
             }
         };
-        clockTimer = new javax.swing.Timer(0, clockUpdate);
-        clockTimer.start();
+        clockTimerOne = new javax.swing.Timer(0, clockUpdateOne);
+        clockTimerOne.start();
         //timer to update clockLabel
+        ActionListener clockUpdateTwo = new ActionListener(){
+            /**
+             * actionPerformed: A method to handle Events from a Timer
+             * @param ae an ActionEvent
+             */
+            public void actionPerformed(ActionEvent ae){
+                Date date = new Date();
+                //instantiate new Date object
+
+                DateFormat otherFormat = new SimpleDateFormat("E, MMM, d y K:mm:ss a");
+                //12 hour time
+
+                String otherDateTime = otherFormat.format(date);
+
+                clockLabelTwo.setText(otherDateTime);
+                //setting clock text to formatted String
+            }
+        };
+        clockTimerTwo = new javax.swing.Timer(0, clockUpdateTwo);
+        clockTimerTwo.start();
+
     }
 
     public void actionPerformed(ActionEvent ae){
@@ -323,6 +363,19 @@ public class Combined implements ActionListener {
             catch(IOException ioe){
                 System.err.println("Error saving employee data.");
             }
+        }
+        else if(actionString.equals("12/24HR Time")){
+            if (clockState){
+                clockLabelOne.setVisible(false);
+                clockLabelTwo.setVisible(true);
+                clockState = false;
+            }
+            else{
+                clockLabelOne.setVisible(true);
+                clockLabelTwo.setVisible(false);
+                clockState = true;
+            }
+
         }
     }
 
