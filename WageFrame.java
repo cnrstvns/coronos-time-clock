@@ -16,11 +16,16 @@ public class WageFrame extends JFrame {
         setTitle("Punches for Employee");
         add(scrollPane);
         for (Object punch : punches) {
-            JSONObject line = (JSONObject) punch;
-            long in = (long) line.get("in");
-            long out = (long) line.get("out");
-            double pay = (double) line.get("pay");
-            containerPanel.add(new WagePanel(in, out, pay));
+            try{
+                JSONObject line = (JSONObject) punch;
+                long in = (long) line.get("in");
+                long out = (long) line.get("out");
+                double pay = (double) line.get("pay");
+                containerPanel.add(new WagePanel(in, out, pay));
+            }
+            catch(NullPointerException npe){
+                break;
+            }
         }
         setVisible(true);
         setSize(400, 400);
