@@ -48,8 +48,8 @@ public class Employee implements Serializable {
         this.employeeData = employeeData;
     }
 
-    public String getEmployeeData(){
-        return employeeData.toJSONString();
+    public JSONObject getEmployeeData(){
+        return (JSONObject) employeeData;
     }
 
     public JSONArray getClockTimes(){

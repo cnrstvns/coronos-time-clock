@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class WagePanel extends JPanel {
-    DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    DateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
     private JLabel inLabel = new JLabel("Time In: ");
     private JLabel outLabel = new JLabel("Time Out: ");
@@ -23,7 +23,7 @@ public class WagePanel extends JPanel {
 
         inTime = new JLabel(inFormatted);
         outTime = new JLabel(outFormatted);
-        wageLabel = new JLabel(String.format("$%f", pay));
+        wageLabel = new JLabel(String.format("$%.2f", pay));
 
         setLayout(new FlowLayout());
         add(inLabel);

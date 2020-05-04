@@ -1,5 +1,7 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
+
 import javax.swing.border.Border;
 import java.awt.event.*;
 import java.util.Timer;
@@ -12,10 +14,16 @@ import java.io.*;
 
 
 public class CoronosClient implements ActionListener {
+    String[] states = {"", "Alabama", "Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
+            "Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts",
+            "Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire", "New Jersey", "New Mexico",
+            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+            "South Dakota", "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"};
     private JPanel userName, passWord, options, chatPanel, actionPanel, gridPanel1, gridPanel2, sendPanel, clockPanel, containerPanel, areaPanel;
     private JButton loginButton, showPassword, chatButton, jbReport, jbProfile, jbSave, jbPunchOut, jbViewPunches, jbFormatTime, jbPunchIn, jbHideChat;
     private JLabel userNameLabel, passWordLabel, clockLabelOne,clockLabelTwo;
     private javax.swing.Timer clockTimerOne, clockTimerTwo;
+    private SimpleDateFormat hoursFormat = new SimpleDateFormat("hh:mm:ss");
     private JPasswordField passWordField;
     private Boolean isRevealed = false;
     private Boolean clockState = true;
@@ -331,6 +339,142 @@ public class CoronosClient implements ActionListener {
         else if(actionString.equals("View Punches")){
             JSONArray punches = employee.getClockTimes();
             WageFrame wf = new WageFrame(punches);
+            wf.setLocationRelativeTo(null);
+        }
+        else if(actionString.equals("View Profile")){
+            JFrame editUser = new JFrame("Coronos - View/Edit Profile");
+            editUser.setLayout(new GridLayout(5, 1));
+
+            JSONObject data = employee.getEmployeeData();
+
+            String firstName = (String) data.get("firstName");
+            String lastName = (String) data.get("lastName");
+            String hourlyPay = Double.toString((double) data.get("wage"));
+            String role = (String) data.get("role");
+            String address = (String) data.get("address");
+            String zip = (String) data.get("zip");
+            String state = (String) data.get("state");
+            String city = (String) data.get("city");
+
+            JPanel centerPanel = new JPanel(new FlowLayout());
+            JPanel bottomPanel = new JPanel(new FlowLayout());
+            JPanel panelfour = new JPanel(new FlowLayout());
+            JPanel panelfive = new JPanel(new FlowLayout());
+            JPanel panelsix = new JPanel(new FlowLayout());
+
+            JLabel wageLabel = new JLabel("Hourly Pay:");
+            JTextField wageField = new JTextField(hourlyPay, 10);
+            JLabel roleLabel = new JLabel("Role:");
+            JTextField roleField = new JTextField(role,10);
+
+            wageField.setEditable(false);
+            roleField.setEditable(false);
+
+            JLabel firstNameLabel = new JLabel("First Name:");
+            JLabel lastNameLabel = new JLabel("Last Name:");
+            JTextField firstNameField = new JTextField(firstName, 10);
+            JTextField lastNameField = new JTextField(lastName, 10);
+
+            firstNameField.setEditable(false);
+            lastNameField.setEditable(false);
+
+            JLabel addressLabel = new JLabel("Street Address:");
+            JTextField addressField = new JTextField(address, 10);
+
+            JLabel cityLabel = new JLabel("City:");
+            JTextField cityField = new JTextField(city,10);
+
+            JLabel zipLabel = new JLabel("Zip Code");
+            JTextField zipField = new JTextField(zip,10);
+
+            JLabel statesLabel = new JLabel("State:");
+            JComboBox statesBox = new JComboBox(states);
+            int i = java.util.Arrays.asList(states).indexOf(state);
+            statesBox.setSelectedIndex(i);
+
+            JButton saveButton = new JButton("Save");
+
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    String actionString = ae.getActionCommand();
+                    if(actionString.equals("Save")){
+                        String address = addressField.getText();
+                        String zip = zipField.getText();
+                        int selected = statesBox.getSelectedIndex();
+                        String selectedState = states[selected];
+                        String city = cityField.getText();
+
+                        if(address.equals("") || selectedState.equals("") || city.equals("") || zip.equals("")){
+                            JOptionPane.showMessageDialog(null, "Empty Field Detected, ensure all fields are filled.", "User Update Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        else{
+                            try{
+                                oos.writeObject(employee);
+                                JOptionPane.showMessageDialog(null, "Saved Data to Server.", "Employee Data", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                            catch(IOException ioe){
+                                JOptionPane.showMessageDialog(null, "Failed to send data to server.", "Server Error", JOptionPane.ERROR_MESSAGE);
+                            }
+
+                            editUser.setVisible(false);
+                        }
+                    }
+                }
+            });
+
+            centerPanel.add(wageLabel);
+            centerPanel.add(wageField);
+            centerPanel.add(roleLabel);
+            centerPanel.add(roleField);
+
+            bottomPanel.add(saveButton);
+
+            panelfour.add(firstNameLabel);
+            panelfour.add(firstNameField);
+            panelfour.add(lastNameLabel);
+            panelfour.add(lastNameField);
+
+            panelfive.add(addressLabel);
+            panelfive.add(addressField);
+
+            panelfive.add(cityLabel);
+            panelfive.add(cityField);
+
+            panelsix.add(statesLabel);
+            panelsix.add(statesBox);
+
+            panelsix.add(zipLabel);
+            panelsix.add(zipField);
+
+
+            editUser.add(panelfour);
+            editUser.add(centerPanel);
+            editUser.add(panelfive);
+            editUser.add(panelsix);
+            editUser.add(bottomPanel);
+            editUser.setLocationRelativeTo(null);
+            editUser.setVisible(true);
+            editUser.pack();
+
+        }
+        else if(actionString.equals("View Report")){
+            JSONArray punches = employee.getClockTimes();
+            double total = 0.0;
+            int length = punches.size();
+            for(Object data : punches){
+                JSONObject jsonData = (JSONObject) data;
+                try{
+                    double payForPeriod = (double) jsonData.get("pay");
+                    total += payForPeriod;
+                }
+                catch(NullPointerException npe){
+                    break;
+                }
+            }
+            String dataString = String.format("You have worked %d shifts for a total of $%.2f pay.", length, total);
+            JOptionPane.showMessageDialog(null, dataString, "Employee Report", JOptionPane.INFORMATION_MESSAGE);
+
         }
         else if(actionString.equals("Punch In")){
             if(employee.getClockedIn()){
@@ -479,6 +623,10 @@ public class CoronosClient implements ActionListener {
     }
 
     public void punchIn(){
+        Date currentDate = new Date();
+        String currentTime = hoursFormat.format(currentDate);
+        String timeString = String.format("You have clocked in.\nThe current time is %s", currentTime);
+        JOptionPane.showMessageDialog(null, timeString, "Coronos Time Clock", JOptionPane.INFORMATION_MESSAGE);
         employee.setClockedIn(true);
         JSONArray clockTimes = employee.getClockTimes();
         Date date = new Date();
@@ -490,6 +638,8 @@ public class CoronosClient implements ActionListener {
     }
 
     public void punchOut(){
+        Date currentDate = new Date();
+        String currentTime = hoursFormat.format(currentDate);
         employee.setClockedIn(false);
         JSONArray clockTimes = employee.getClockTimes();
         Date date = new Date();
@@ -502,5 +652,7 @@ public class CoronosClient implements ActionListener {
         newPunch.put("pay", pay);
         clockTimes.set(index, newPunch);
         employee.setPunches(clockTimes);
+        String timeString = String.format("You have clocked out.\nThe current time is %s.\nYou have been paid $%.2f", currentTime, pay);
+        JOptionPane.showMessageDialog(null, timeString, "Coronos Time Clock", JOptionPane.INFORMATION_MESSAGE);
     }
 }

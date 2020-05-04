@@ -35,7 +35,7 @@ public class CoronosServer implements ActionListener {
             "Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire", "New Jersey", "New Mexico",
             "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
             "South Dakota", "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"};
-    private JPanel serverInfo, encompassPanel, chatPanel, opsPanel, settingsPanel, chatBar;
+    private JPanel serverInfo, encompassPanel, chatPanel, opsPanel, chatBar;
     private JLabel serverAddress, hostLabel, portLabel, connectedUsers;
     private Vector<ObjectOutputStream> messageStreams = new Vector<>();
     private JButton jbAdd, jbEnable, jbDisable;
