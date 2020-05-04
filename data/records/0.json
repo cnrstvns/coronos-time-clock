@@ -1,1 +1,25 @@
-{"zip":"07450","firstName":"Connor","lastName":"Stevens","role":"Tech Support","address":"119 California Street","city":"Ridgewood","active":true,"state":"New Jersey","clockedIn":false,"wage":10.55}
+{
+    "zip": "07450",
+    "firstName": "Connor",
+    "lastName": "Stevens",
+    "role": "Tech Support",
+    "address": "119 California Street",
+    "city": "Ridgewood",
+    "active": true,
+    "state": "New Jersey",
+    "clockedIn": false,
+    "wage": 10.55,
+    "punches": [{
+        "in": 1557662700,
+        "out": 1557678960,
+        "pay": 10.00
+    }, {
+        "in": 1560490200,
+        "out": 1560527460,
+        "pay": 10.00
+    }, {
+        "in": 1588491360,
+        "out": 1588509780,
+        "pay": 10.00
+    }]
+}
