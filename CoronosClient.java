@@ -1,19 +1,45 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
-import javax.swing.border.Border;
-import java.awt.event.*;
-import java.util.Timer;
 import javax.swing.*;
-import java.util.*;
-import java.text.*;
-import java.net.*;
+import javax.swing.border.Border;
 import java.awt.*;
-import java.io.*;
-
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.BindException;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+/**
+ * @author Dalton Kruppenbacher - Server Setup/Initial Commit
+ * @author Connor Stevens - GUI
+ * @author Brian Zhu
+ * @author Everett Simone
+ * @version 1.0
+ * Revision Notes: Full Release
+ *
+ *
+ * ISTE 121.01 CPS:ID2
+ * Final Project
+ *
+ * Class description: The CoronosClient is the Client interface of the Coronos Timeclock Solution. The CoronosClient
+ *                    Class allows a user to log punches and view data pertinent to their earned wages
+ *
+ *                    The duplication of this code without written consent of the authors is strictly prohibited.
+ *
+ */
 
 public class CoronosClient implements ActionListener {
+    //attributes
     String[] states = {"", "Alabama", "Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia",
             "Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts",
             "Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire", "New Jersey", "New Mexico",
@@ -44,10 +70,17 @@ public class CoronosClient implements ActionListener {
     private Boolean saved;
     private Socket s;
 
+    /**
+     * Default Constructor
+     *      Creates the GUIs
+     *      Creates a Socket + streams
+     */
     public CoronosClient(){
+        //GUI creator
         loginBuilder();
         uiBuilder();
 
+        //create Socket + Streams
         try {
             s = new Socket("localhost", 16789);
             oos = new ObjectOutputStream(s.getOutputStream());
@@ -62,8 +95,11 @@ public class CoronosClient implements ActionListener {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-    }
+    }//end constructor
 
+    /**
+     * Method to build the login GUI
+     */
     public void loginBuilder(){
         loginFrame = new JFrame("Coronos Login");
         loginFrame.setLayout(new GridLayout(3, 1));
@@ -99,8 +135,11 @@ public class CoronosClient implements ActionListener {
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setVisible(true);
         loginFrame.pack();
-    }
+    }//end loginBuilder()
 
+    /**
+     * Method to create the main user interface
+     */
     public void uiBuilder(){
         fontLoader();
 
@@ -277,12 +316,19 @@ public class CoronosClient implements ActionListener {
         clockTimerTwo = new javax.swing.Timer(0, clockUpdateTwo);
         clockTimerTwo.start();
 
-    }
+    }//end uiBuilder()
 
+    /**
+     * Method to handle button pushes
+     * @param ae an Action Event
+     */
     public void actionPerformed(ActionEvent ae){
         String actionString = ae.getActionCommand();
         System.out.println("[CLIENT] - Action - " + actionString);
 
+        /*
+         * if Reveal Password is pressed, the password will be shown in plaintext
+         */
         if(actionString.equals("Reveal Password")){
             char[] pass = passWordField.getPassword();
             String password = new String(pass);
@@ -290,10 +336,20 @@ public class CoronosClient implements ActionListener {
             passWordField.setText(password);
             showPassword.setText("Hide Password");
         }
+
+        /*
+         * if Reveal Password is pressed, the password will be shown in asterisks
+         */
         else if(actionString.equals("Hide Password")){
             passWordField.setEchoChar('*');
             showPassword.setText("Reveal Password");
         }
+
+        /*
+         * if login is pressed:
+         *      Username and Password is sent to server
+         *      Verification of Success or Failure is read back
+         */
         else if(actionString.equals("Login")){
             char[] pass = passWordField.getPassword();
             String password = new String(pass);
@@ -306,6 +362,10 @@ public class CoronosClient implements ActionListener {
                 ioe.printStackTrace();
             }
         }
+
+        /*
+         * if send button is pressed, message is sent to server, which is sent to all clients
+         */
         else if(actionString.equals("Send")){
             if(chatField.getText().equals("")){
                 return;
@@ -322,6 +382,10 @@ public class CoronosClient implements ActionListener {
                 }
             }
         }
+
+        /*
+         * if the hide chat button is pressed, chat panel will be hidden
+         */
         else if(actionString.equals("Hide Chat")){
             jbHideChat.setText("Show Chat");
             containerPanel.remove(chatPanel);
@@ -329,6 +393,10 @@ public class CoronosClient implements ActionListener {
             jfFrame.repaint();
             jbHideChat.setToolTipText("Want to harass your boss? Enable chat!");
         }
+
+        /*
+         * if the show chat button is pressed, chat panel will be shown
+         */
         else if(actionString.equals("Show Chat")){
             jbHideChat.setText("Hide Chat");
             containerPanel.add(chatPanel);
@@ -336,11 +404,21 @@ public class CoronosClient implements ActionListener {
             jfFrame.repaint();
             jbHideChat.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
         }
+
+        /*
+         * if the view punches button is pressed, punches will be shown
+         */
         else if(actionString.equals("View Punches")){
             JSONArray punches = employee.getClockTimes();
             WageFrame wf = new WageFrame(punches);
             wf.setLocationRelativeTo(null);
         }
+
+        /*
+         * if the view profile button is pressed:
+         *      Data will be populated in a GUI
+         *      If a change is detected, the updated information will be sent to the server
+         */
         else if(actionString.equals("View Profile")){
             JFrame editUser = new JFrame("Coronos - View/Edit Profile");
             editUser.setLayout(new GridLayout(5, 1));
@@ -458,6 +536,11 @@ public class CoronosClient implements ActionListener {
             editUser.pack();
 
         }
+
+        /*
+         * if the view report button is pressed:
+         *      Wages are calculated and shown
+         */
         else if(actionString.equals("View Report")){
             JSONArray punches = employee.getClockTimes();
             double total = 0.0;
@@ -476,6 +559,10 @@ public class CoronosClient implements ActionListener {
             JOptionPane.showMessageDialog(null, dataString, "Employee Report", JOptionPane.INFORMATION_MESSAGE);
 
         }
+
+        /*
+         * if the punch in button is pressed, a punch in time is set
+         */
         else if(actionString.equals("Punch In")){
             if(employee.getClockedIn()){
                 JOptionPane.showMessageDialog(null, "You are already clocked in.");
@@ -485,6 +572,10 @@ public class CoronosClient implements ActionListener {
                 saved = false;
             }
         }
+
+        /*
+         * if the punch out button is pressed, a punch out time is set
+         */
         else if(actionString.equals("Punch Out")){
             if(!employee.getClockedIn()){
                 JOptionPane.showMessageDialog(null, "You are already clocked out.");
@@ -494,6 +585,10 @@ public class CoronosClient implements ActionListener {
                 saved = false;
             }
         }
+
+        /*
+         * if the save button is pressed, the employee profile is saved
+         */
         else if(actionString.equals("Save")){
             try{
                 oos.writeObject((Object) employee);
@@ -504,6 +599,10 @@ public class CoronosClient implements ActionListener {
                 System.err.println("Error saving employee data.");
             }
         }
+
+        /*
+         * if the time toggle button is pressed, the time is switched to 12 or 24 hour format
+         */
         else if(actionString.equals("12/24HR Time")){
             if (clockState){
                 clockLabelOne.setVisible(false);
@@ -517,6 +616,10 @@ public class CoronosClient implements ActionListener {
             }
 
         }
+
+        /*
+         * if the exit button is pressed, exit command is verified and client is safely shutdown
+         */
         else if(actionString.equals("Exit")){
             TimerTask shutDown = new TimerTask() {
                 @Override
@@ -547,16 +650,29 @@ public class CoronosClient implements ActionListener {
             Timer timer = new java.util.Timer();
             timer.schedule(shutDown, 500);
         }
+
+        /*
+         * if the about button is pressed, crediting information is displayed
+         */
         else if(actionString.equals("About")){
             JOptionPane.showMessageDialog(null, "Coronos Time Clock © 2020\nAll Rights Reserved\n\nAuthors:\nConnor Stevens\nEverett Simone\nDalton Kruppenbacher\nBrian Zhu", "About Coronos", JOptionPane.INFORMATION_MESSAGE);
         }
-    }
+    }//end actionPerformed()
 
+    /**
+     * A method to handle reading in Server Objects
+     */
     public void serverListener() {
         while(true){
             try{
                 Object obj = ois.readObject();
 
+                /*
+                 * If the object is of the CoronosAuth Class
+                 *      Verify if the person can log in
+                 *      if Yes: Display interface
+                 *      if No: Prompt reason
+                 */
                 if(obj instanceof CoronosAuth){
                     System.out.println("[IO] - [Server] - Received CoronosAuth Object");
                     CoronosAuth returned = (CoronosAuth) obj;
@@ -581,12 +697,19 @@ public class CoronosClient implements ActionListener {
                     }
                 }
 
+                /*
+                 * if the object is of the Message Class
+                 *      Append message to chat area
+                 */
                 if(obj instanceof Message){
                     System.out.println("[IO] - [Server] - Received Message Object");
                     Message message = (Message) obj;
                     chatArea.append(String.format("%s", message.toString()));
                 }
 
+                /*
+                 * if the object is of the Employee class, save the employee object
+                 */
                 else if(obj instanceof Employee){
                     System.out.println("[IO] - [Server] - Received Employee Object");
                     this.employee = (Employee) obj;
@@ -603,12 +726,19 @@ public class CoronosClient implements ActionListener {
                 npe.printStackTrace();
             }
         }
-    }
+    }//end server listener
 
+    /**
+     * Main Method
+     * @param args
+     */
     public static void main(String[] args){
         CoronosClient c = new CoronosClient();
     }
 
+    /**
+     * Method to load custom font
+     */
     public void fontLoader(){
         try {
             //create the font to use. Specify the size!
@@ -620,8 +750,14 @@ public class CoronosClient implements ActionListener {
         } catch(FontFormatException e) {
             e.printStackTrace();
         }
-    }
+    }//end fontLoader
 
+    /**
+     * Method to register a punch in
+     *      Gets current time
+     *      Saves to JSON directory
+     *      Sets clockedIn to true
+     */
     public void punchIn(){
         Date currentDate = new Date();
         String currentTime = hoursFormat.format(currentDate);
@@ -635,8 +771,14 @@ public class CoronosClient implements ActionListener {
         newPunch.put("in", now);
         clockTimes.add(newPunch);
         employee.setPunches(clockTimes);
-    }
+    }//end punchIn()
 
+    /**
+     * Method to register a punch out
+     *      Gets current time
+     *      Saves to JSON directory
+     *      Sets clockedIn to false
+     */
     public void punchOut(){
         Date currentDate = new Date();
         String currentTime = hoursFormat.format(currentDate);
@@ -654,5 +796,5 @@ public class CoronosClient implements ActionListener {
         employee.setPunches(clockTimes);
         String timeString = String.format("You have clocked out.\nThe current time is %s.\nYou have been paid $%.2f", currentTime, pay);
         JOptionPane.showMessageDialog(null, timeString, "Coronos Time Clock", JOptionPane.INFORMATION_MESSAGE);
-    }
-}
+    }//end punchOut()
+}//end class
