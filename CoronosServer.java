@@ -699,7 +699,7 @@ public class CoronosServer implements ActionListener {
                                 Employee temp = (Employee) ob;
                                 int id = temp.getId();
                                 Writer writer = new FileWriter(String.format(".\\data\\records\\%s.json", id));
-                                String data = temp.getEmployeeData();
+                                String data = temp.getEmployeeData().toJSONString();
                                 writer.write(data);
                                 writer.flush();
                                 writer.close();
