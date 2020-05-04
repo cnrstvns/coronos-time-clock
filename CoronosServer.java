@@ -38,7 +38,7 @@ public class CoronosServer implements ActionListener {
     private JPanel serverInfo, encompassPanel, chatPanel, opsPanel, settingsPanel, chatBar;
     private JLabel serverAddress, hostLabel, portLabel, connectedUsers;
     private Vector<ObjectOutputStream> messageStreams = new Vector<>();
-    private JButton b1, b2, b3;
+    private JButton jbAdd, jbEnable, jbDisable;
     private Vector<String> users = new Vector<>();
     private final int PORT_NUMBER = 16789;
     private JMenu jmFile, jmHelp;
@@ -105,9 +105,9 @@ public class CoronosServer implements ActionListener {
             JPanel topPanel = new JPanel(new FlowLayout());
             JPanel centerPanel = new JPanel(new FlowLayout());
             JPanel bottomPanel = new JPanel(new FlowLayout());
-            JPanel panelfour = new JPanel(new FlowLayout());
-            JPanel panelfive = new JPanel(new FlowLayout());
-            JPanel panelsix = new JPanel(new FlowLayout());
+            JPanel panelFour = new JPanel(new FlowLayout());
+            JPanel panelFive = new JPanel(new FlowLayout());
+            JPanel panelSix = new JPanel(new FlowLayout());
 
             JLabel usernameLabel = new JLabel("Username:");
             JTextField usernameField = new JTextField(10);
@@ -194,29 +194,29 @@ public class CoronosServer implements ActionListener {
 
             bottomPanel.add(saveButton);
 
-            panelfour.add(firstNameLabel);
-            panelfour.add(firstNameField);
-            panelfour.add(lastNameLabel);
-            panelfour.add(lastNameField);
+            panelFour.add(firstNameLabel);
+            panelFour.add(firstNameField);
+            panelFour.add(lastNameLabel);
+            panelFour.add(lastNameField);
 
-            panelfive.add(addressLabel);
-            panelfive.add(addressField);
+            panelFive.add(addressLabel);
+            panelFive.add(addressField);
 
-            panelfive.add(cityLabel);
-            panelfive.add(cityField);
+            panelFive.add(cityLabel);
+            panelFive.add(cityField);
 
-            panelsix.add(statesLabel);
-            panelsix.add(statesBox);
+            panelSix.add(statesLabel);
+            panelSix.add(statesBox);
 
-            panelsix.add(zipLabel);
-            panelsix.add(zipField);
+            panelSix.add(zipLabel);
+            panelSix.add(zipField);
 
 
-            addUser.add(panelfour);
+            addUser.add(panelFour);
             addUser.add(topPanel);
             addUser.add(centerPanel);
-            addUser.add(panelfive);
-            addUser.add(panelsix);
+            addUser.add(panelFive);
+            addUser.add(panelSix);
             addUser.add(bottomPanel);
             addUser.setLocationRelativeTo(null);
             addUser.setVisible(true);
@@ -435,12 +435,12 @@ public class CoronosServer implements ActionListener {
         jmMenuBar.add(jmHelp);
         //adding JMenus to JMenuBar
 
-        b1 = new JButton("Add Employee");
-        b1.addActionListener(this);
-        b2 = new JButton("Enable Employee");
-        b2.addActionListener(this);
-        b3 = new JButton("Disable Employee");
-        b3.addActionListener(this);
+        jbAdd = new JButton("Add Employee");
+        jbAdd.addActionListener(this);
+        jbEnable = new JButton("Enable Employee");
+        jbEnable.addActionListener(this);
+        jbDisable = new JButton("Disable Employee");
+        jbDisable.addActionListener(this);
 
         serverFrame = new JFrame("Coronos Server");
         serverFrame.setJMenuBar(jmMenuBar);
@@ -457,9 +457,9 @@ public class CoronosServer implements ActionListener {
         opsPanel.setLayout(new GridLayout(3, 1, 15, 5));
         opsPanel.setBorder(BorderFactory.createTitledBorder("Operations"));
 
-        opsPanel.add(b1);
-        opsPanel.add(b2);
-        opsPanel.add(b3);
+        opsPanel.add(jbAdd);
+        opsPanel.add(jbEnable);
+        opsPanel.add(jbDisable);
 
         encompassPanel.add(opsPanel);
 
