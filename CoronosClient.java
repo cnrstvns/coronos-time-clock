@@ -1,6 +1,5 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
 import javax.swing.border.Border;
 import java.awt.event.*;
@@ -19,7 +18,7 @@ public class CoronosClient implements ActionListener {
             "Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire", "New Jersey", "New Mexico",
             "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
             "South Dakota", "Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"};
-    private JPanel userName, passWord, options, chatPanel, actionPanel, gridPanel1, gridPanel2, sendPanel, clockPanel, containerPanel, areaPanel;
+    private JPanel jpUserName, jpPassWord, jpOptions, jpChatPanel, jpActionPanel, jpGridPanel1, jpGridPanel2, jpSendPanel, jpClockPanel, jpContainerPanel, jpAreaPanel;
     private JButton loginButton, showPassword, chatButton, jbReport, jbProfile, jbSave, jbPunchOut, jbViewPunches, jbFormatTime, jbPunchIn, jbHideChat;
     private JLabel userNameLabel, passWordLabel, clockLabelOne,clockLabelTwo;
     private javax.swing.Timer clockTimerOne, clockTimerTwo;
@@ -30,13 +29,13 @@ public class CoronosClient implements ActionListener {
     private JMenu menu, jmFile, jmHelp;
     private JFrame loginFrame, jfFrame;
     private JMenuItem jmExit, jmAbout;
-    private JTextField userNameField;
+    private JTextField jtfUserNameField;
     private String reason, username;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
-    private JTextField chatField;
-    private JScrollPane chatPane;
-    private JTextArea chatArea;
+    private JTextField jtfChatField;
+    private JScrollPane jspChatPane;
+    private JTextArea jtaChatArea;
     private JMenuBar jmMenuBar;
     private Employee employee;
     private Font customFont;
@@ -68,32 +67,32 @@ public class CoronosClient implements ActionListener {
         loginFrame = new JFrame("Coronos Login");
         loginFrame.setLayout(new GridLayout(3, 1));
 
-        userName = new JPanel(new FlowLayout());
-        userNameField = new JTextField(10);
+        jpUserName = new JPanel(new FlowLayout());
+        jtfUserNameField = new JTextField(10);
         userNameLabel = new JLabel("Username:");
-        userNameLabel.setLabelFor(userNameField);
-        userName.add(userNameLabel);
-        userName.add(userNameField);
-        loginFrame.add(userName);
+        userNameLabel.setLabelFor(jtfUserNameField);
+        jpUserName.add(userNameLabel);
+        jpUserName.add(jtfUserNameField);
+        loginFrame.add(jpUserName);
         
-        passWord = new JPanel(new FlowLayout());
+        jpPassWord = new JPanel(new FlowLayout());
         passWordField = new JPasswordField(10);
         passWordLabel = new JLabel("Password:");
         passWordField.addActionListener(this);
         passWordField.setActionCommand("Login");
         passWordLabel.setLabelFor(passWordField);
-        passWord.add(passWordLabel);
-        passWord.add(passWordField);
-        loginFrame.add(passWord);
+        jpPassWord.add(passWordLabel);
+        jpPassWord.add(passWordField);
+        loginFrame.add(jpPassWord);
         
-        options = new JPanel(new FlowLayout());
+        jpOptions = new JPanel(new FlowLayout());
         loginButton = new JButton("Login");
         loginButton.addActionListener(this);
         showPassword = new JButton("Reveal Password");
         showPassword.addActionListener(this);
-        options.add(loginButton);
-        options.add(showPassword);
-        loginFrame.add(options);
+        jpOptions.add(loginButton);
+        jpOptions.add(showPassword);
+        loginFrame.add(jpOptions);
         
         loginFrame.setLocationRelativeTo(null);
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -134,27 +133,27 @@ public class CoronosClient implements ActionListener {
         jfFrame.setJMenuBar(jmMenuBar);
         //adding JMenuBar to JFrame
 
-        clockPanel = new JPanel(new FlowLayout());
-        containerPanel = new JPanel(new FlowLayout());
+        jpClockPanel = new JPanel(new FlowLayout());
+        jpContainerPanel = new JPanel(new FlowLayout());
         Border blackLine = BorderFactory.createTitledBorder("Current Time");
-        clockPanel.setBorder(blackLine);
+        jpClockPanel.setBorder(blackLine);
         //instantiate JPanel for clock
 
         clockLabelOne = new JLabel();
         clockLabelOne.setFont(customFont);
         clockLabelOne.setForeground(Color.BLACK);
-        clockPanel.add(clockLabelOne);
+        jpClockPanel.add(clockLabelOne);
         //instantiating JLabel, setting Font and Color, adding to clockPanel
 
         clockLabelTwo = new JLabel();
         clockLabelTwo.setFont(customFont);
         clockLabelTwo.setForeground(Color.BLACK);
-        clockPanel.add(clockLabelTwo);
+        jpClockPanel.add(clockLabelTwo);
         clockLabelTwo.setVisible(false);
         //instantiating JLabel, setting Font and Color, adding to clockPanel
 
-        gridPanel1 = new JPanel(new GridLayout(4, 1, 15, 15));
-        gridPanel2 = new JPanel(new GridLayout(4, 1, 15, 15));
+        jpGridPanel1 = new JPanel(new GridLayout(4, 1, 15, 15));
+        jpGridPanel2 = new JPanel(new GridLayout(4, 1, 15, 15));
 
         jbPunchIn = new JButton("Punch In");
         jbReport = new JButton("View Report");
@@ -176,47 +175,47 @@ public class CoronosClient implements ActionListener {
         jbFormatTime.addActionListener(this);
         jbHideChat.addActionListener(this);
 
-        gridPanel1.add(jbPunchIn);
-        gridPanel1.add(jbReport);
-        gridPanel1.add(jbProfile);
-        gridPanel1.add(jbSave);
+        jpGridPanel1.add(jbPunchIn);
+        jpGridPanel1.add(jbReport);
+        jpGridPanel1.add(jbProfile);
+        jpGridPanel1.add(jbSave);
 
-        gridPanel2.add(jbPunchOut);
-        gridPanel2.add(jbViewPunches);
-        gridPanel2.add(jbFormatTime);
-        gridPanel2.add(jbHideChat);
+        jpGridPanel2.add(jbPunchOut);
+        jpGridPanel2.add(jbViewPunches);
+        jpGridPanel2.add(jbFormatTime);
+        jpGridPanel2.add(jbHideChat);
 
-        actionPanel = new JPanel(new FlowLayout());
+        jpActionPanel = new JPanel(new FlowLayout());
         Border actionBorder = BorderFactory.createTitledBorder("Employee Actions");
-        actionPanel.setBorder(actionBorder);
-        actionPanel.add(gridPanel1);
-        actionPanel.add(gridPanel2);
-        containerPanel.add(actionPanel);
+        jpActionPanel.setBorder(actionBorder);
+        jpActionPanel.add(jpGridPanel1);
+        jpActionPanel.add(jpGridPanel2);
+        jpContainerPanel.add(jpActionPanel);
 
-        chatPanel = new JPanel(new BorderLayout());
-        areaPanel = new JPanel(new FlowLayout());
-        chatArea = new JTextArea(10, 10);
-        chatArea.setLineWrap(true);
-        chatArea.setWrapStyleWord(true);
-        chatArea.setEditable(false);
-        chatPane = new JScrollPane(chatArea);
-        chatField = new JTextField(12);
-        chatField.addActionListener(this);
-        chatField.setActionCommand("Send");
+        jpChatPanel = new JPanel(new BorderLayout());
+        jpAreaPanel = new JPanel(new FlowLayout());
+        jtaChatArea = new JTextArea(10, 10);
+        jtaChatArea.setLineWrap(true);
+        jtaChatArea.setWrapStyleWord(true);
+        jtaChatArea.setEditable(false);
+        jspChatPane = new JScrollPane(jtaChatArea);
+        jtfChatField = new JTextField(12);
+        jtfChatField.addActionListener(this);
+        jtfChatField.setActionCommand("Send");
         chatButton = new JButton("Send");
         chatButton.addActionListener(this);
-        sendPanel = new JPanel(new FlowLayout());
-        sendPanel.add(chatField);
-        sendPanel.add(chatButton);
+        jpSendPanel = new JPanel(new FlowLayout());
+        jpSendPanel.add(jtfChatField);
+        jpSendPanel.add(chatButton);
         Border chatBorder = BorderFactory.createTitledBorder("Chat");
-        chatPanel.setBorder(chatBorder);
-        chatPanel.add(chatPane, BorderLayout.NORTH);
-        chatPanel.add(sendPanel, BorderLayout.SOUTH);
-        containerPanel.add(chatPanel);
+        jpChatPanel.setBorder(chatBorder);
+        jpChatPanel.add(jspChatPane, BorderLayout.NORTH);
+        jpChatPanel.add(jpSendPanel, BorderLayout.SOUTH);
+        jpContainerPanel.add(jpChatPanel);
 
        // jfFrame.add(clockPanelTwo, BorderLayout.NORTH);
-        jfFrame.add(clockPanel, BorderLayout.NORTH);
-        jfFrame.add(containerPanel, BorderLayout.SOUTH);
+        jfFrame.add(jpClockPanel, BorderLayout.NORTH);
+        jfFrame.add(jpContainerPanel, BorderLayout.SOUTH);
 
         //adding JPanels to JFrame
 
@@ -297,7 +296,7 @@ public class CoronosClient implements ActionListener {
         else if(actionString.equals("Login")){
             char[] pass = passWordField.getPassword();
             String password = new String(pass);
-            CoronosAuth auth = new CoronosAuth(userNameField.getText(), password);
+            CoronosAuth auth = new CoronosAuth(jtfUserNameField.getText(), password);
             try{
                 oos.writeObject(auth);
                 oos.flush();
@@ -307,12 +306,12 @@ public class CoronosClient implements ActionListener {
             }
         }
         else if(actionString.equals("Send")){
-            if(chatField.getText().equals("")){
+            if(jtfChatField.getText().equals("")){
                 return;
             }
             else{
-                Message msg = new Message(String.format("%s: %s\n", username, chatField.getText()));
-                chatField.setText("");
+                Message msg = new Message(String.format("%s: %s\n", username, jtfChatField.getText()));
+                jtfChatField.setText("");
                 try{
                     oos.writeObject(msg);
                     oos.flush();
@@ -324,15 +323,15 @@ public class CoronosClient implements ActionListener {
         }
         else if(actionString.equals("Hide Chat")){
             jbHideChat.setText("Show Chat");
-            containerPanel.remove(chatPanel);
-            containerPanel.revalidate();
+            jpContainerPanel.remove(jpChatPanel);
+            jpContainerPanel.revalidate();
             jfFrame.repaint();
             jbHideChat.setToolTipText("Want to harass your boss? Enable chat!");
         }
         else if(actionString.equals("Show Chat")){
             jbHideChat.setText("Hide Chat");
-            containerPanel.add(chatPanel);
-            containerPanel.revalidate();
+            jpContainerPanel.add(jpChatPanel);
+            jpContainerPanel.revalidate();
             jfFrame.repaint();
             jbHideChat.setToolTipText("Hate your co-workers? Want to hide from your boss? Just close chat!");
         }
@@ -568,7 +567,7 @@ public class CoronosClient implements ActionListener {
                     if(allow) {
                         System.out.println("[AUTH] - Successful Login - Authentication Successful!");
                         loginFrame.setVisible(false);
-                        String username = userNameField.getText();
+                        String username = jtfUserNameField.getText();
                         jfFrame.setTitle(String.format("Coronos Client - %s", username));
                         jfFrame.setVisible(true);
                         Message message = new Message(String.format("%s has joined\n", username));
@@ -584,7 +583,7 @@ public class CoronosClient implements ActionListener {
                 if(obj instanceof Message){
                     System.out.println("[IO] - [Server] - Received Message Object");
                     Message message = (Message) obj;
-                    chatArea.append(String.format("%s", message.toString()));
+                    jtaChatArea.append(String.format("%s", message.toString()));
                 }
 
                 else if(obj instanceof Employee){
