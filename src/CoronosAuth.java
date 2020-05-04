@@ -8,13 +8,13 @@ import java.io.Serializable;
  * ISTE 121.01 CPS:ID2
  * Final Project
  *
- * Class description: The CoronosAuth class allows for an interface to verify a user's login.
+ * Class description: The CoronosAuth class allows for an application to verify a user's login.
  *
  *                    The duplication of this code without written consent of the authors is strictly prohibited.
  *
  */
 
-public class CoronosAuth implements Serializable{
+public class CoronosAuth implements Serializable {
     //attributes
     private String username;
     private String password;
@@ -26,7 +26,7 @@ public class CoronosAuth implements Serializable{
      * @param username A user's username
      * @param password A user's password
      */
-    public CoronosAuth(String username, String password){
+    public CoronosAuth(String username, String password) {
         this.username = username;
         this.password = password;
     }//end constructor

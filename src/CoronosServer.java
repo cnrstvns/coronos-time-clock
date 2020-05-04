@@ -590,7 +590,6 @@ public class CoronosServer implements ActionListener {
         serverInfo.add(connectedLabel);
         serverInfo.add(connectedUsers);
 
-
         chatBar = new JPanel(new FlowLayout());
         JButton send = new JButton("Send");
         send.addActionListener(this);
@@ -783,6 +782,7 @@ public class CoronosServer implements ActionListener {
                                 for (String user : users) {
                                     String userName = user.split(":")[0];
                                     String passWord = user.split(":")[1];
+                                    //determine if username and password are valid, first username then password if username valid
                                     if (username.equalsIgnoreCase(userName)) {
                                         if (password.equals(passWord)) {
                                             String id = user.split(":")[2];
@@ -821,8 +821,10 @@ public class CoronosServer implements ActionListener {
                                     }
                                 }
 
+                                //send authentication status to client
                                 oos.writeObject(temp);
                                 oos.flush();
+                                //if employee is enabled, send data
                                 if(enabled){
                                     Employee out = new Employee(userJson);
                                     out.setId(userID);

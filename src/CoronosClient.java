@@ -75,14 +75,14 @@ public class CoronosClient implements ActionListener {
      *      Creates the GUIs
      *      Creates a Socket + streams
      */
-    public CoronosClient(){
+    public CoronosClient(String ip){
         //GUI creator
         loginBuilder();
         uiBuilder();
 
         //create Socket + Streams
         try {
-            s = new Socket("localhost", 16789);
+            s = new Socket(ip, 16789);
             oos = new ObjectOutputStream(s.getOutputStream());
             ois = new ObjectInputStream(s.getInputStream());
             serverListener();
@@ -733,7 +733,13 @@ public class CoronosClient implements ActionListener {
      * @param args
      */
     public static void main(String[] args){
-        CoronosClient c = new CoronosClient();
+        String data = JOptionPane.showInputDialog(null,"What is the IP Address of the server?", "Connect to Server", JOptionPane.PLAIN_MESSAGE);
+        if(data != null){
+            CoronosClient c = new CoronosClient(data);
+        }
+        else{
+            System.exit(0);
+        }
     }
 
     /**
